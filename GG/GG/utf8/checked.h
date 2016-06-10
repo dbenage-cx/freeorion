@@ -75,20 +75,20 @@ namespace utf8
             octet_iterator sequence_start = start;
             internal::utf_error err_code = internal::validate_next(start, end);
             switch (err_code) {
-                case internal::OK :
+                case internal::UTF8_OK :
                     for (octet_iterator it = sequence_start; it != start; ++it)
                         *out++ = *it;
                     break;
                 case internal::NOT_ENOUGH_ROOM:
                     throw not_enough_room();
                 case internal::INVALID_LEAD:
-                    append (replacement, out);
+                    out = append (replacement, out);
                     ++start;
                     break;
                 case internal::INCOMPLETE_SEQUENCE:
                 case internal::OVERLONG_SEQUENCE:
                 case internal::INVALID_CODE_POINT:
-                    append (replacement, out);
+                    out = append (replacement, out);
                     ++start;
                     // just one replacement mark for the sequence
                     while (internal::is_trail(*start) && start != end)
@@ -139,9 +139,9 @@ namespace utf8
     uint32_t next(octet_iterator& it, octet_iterator end)
     {
         uint32_t cp = 0;
-        internal::utf_error err_code = internal::validate_next(it, end, &cp);
+        internal::utf_error err_code = internal::validate_next(it, end, cp);
         switch (err_code) {
-            case internal::OK :
+            case internal::UTF8_OK :
                 break;
             case internal::NOT_ENOUGH_ROOM :
                 throw not_enough_room();
@@ -152,7 +152,7 @@ namespace utf8
             case internal::INVALID_CODE_POINT :
                 throw invalid_code_point(cp);
         }
-        return cp;        
+        return cp;
     }
 
     template <typename octet_iterator>
@@ -164,12 +164,15 @@ namespace utf8
     template <typename octet_iterator>
     uint32_t prior(octet_iterator& it, octet_iterator start)
     {
+        if (it == start)
+            throw not_enough_room();
+
         octet_iterator end = it;
         while (internal::is_trail(*(--it))) 
-            if (it < start)
+            if (it == start)
                 throw invalid_utf8(*it); // error - no lead byte in the sequence
         octet_iterator temp = it;
-        return next(temp, end);
+        return peek_next(temp, end);
     }
 
     /// Deprecated in versions that include "prior"
@@ -203,31 +206,35 @@ namespace utf8
 
     template <typename u16bit_iterator, typename octet_iterator>
     octet_iterator utf16to8 (u16bit_iterator start, u16bit_iterator end, octet_iterator result)
-    {       
+    {
         while (start != end) {
             uint32_t cp = internal::mask16(*start++);
             // Take care of surrogate pairs first
-            if (internal::is_surrogate(cp)) {
+            if (internal::is_lead_surrogate(cp)) {
                 if (start != end) {
                     uint32_t trail_surrogate = internal::mask16(*start++);
-                    if (trail_surrogate >= internal::TRAIL_SURROGATE_MIN && trail_surrogate <= internal::TRAIL_SURROGATE_MAX)
-                        cp = (cp << 10) + trail_surrogate + internal::SURROGATE_OFFSET;                    
+                    if (internal::is_trail_surrogate(trail_surrogate))
+                        cp = (cp << 10) + trail_surrogate + internal::SURROGATE_OFFSET;
                     else 
                         throw invalid_utf16(static_cast<uint16_t>(trail_surrogate));
                 }
                 else 
                     throw invalid_utf16(static_cast<uint16_t>(*start));
-            
+
             }
+            // Lone trail surrogate
+            else if (internal::is_trail_surrogate(cp))
+                throw invalid_utf16(static_cast<uint16_t>(cp));
+
             result = append(cp, result);
         }
-        return result;        
+        return result;
     }
 
     template <typename u16bit_iterator, typename octet_iterator>
     u16bit_iterator utf8to16 (octet_iterator start, octet_iterator end, u16bit_iterator result)
     {
-        while (start != end) {
+        while (start < end) {
             uint32_t cp = next(start, end);
             if (cp > 0xffff) { //make a surrogate pair
                 *result++ = static_cast<uint16_t>((cp >> 10)   + internal::LEAD_OFFSET);
