@@ -4,11 +4,19 @@ Part
     exclusions = [[ALL_SHIELDS]]
     class = Shield
     capacity = 9
+    NoDefaultCapacityEffect
     mountableSlotTypes = Internal
     buildcost = 90 * [[FLEET_UPKEEP_MULTIPLICATOR]] * [[SHIP_PART_COST_MULTIPLIER]]
     buildtime = 5
     tags = [ "PEDIA_PC_SHIELD" ]
     location = OwnedBy empire = Source.Owner
+    effectsgroups = [
+        EffectsGroup
+            scope = Source
+            stackinggroup = "SHIELD_PART_STACK"
+            priority = 35
+            effects = SetMaxShield value = Value + PartCapacity name = "SH_PLASMA"
+    ]
     icon = "icons/ship_parts/plasma_shield.png"
 
 #include "shield.macros"

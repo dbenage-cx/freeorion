@@ -4,11 +4,19 @@ Part
     exclusions = [[ALL_SHIELDS]]
     class = Shield
     capacity = 15
+    NoDefaultCapacityEffect
     mountableSlotTypes = Internal
     buildcost = 150 * [[FLEET_UPKEEP_MULTIPLICATOR]] * [[SHIP_PART_COST_MULTIPLIER]]
     buildtime = 6
     tags = [ "PEDIA_PC_SHIELD" ]
     location = OwnedBy empire = Source.Owner
+    effectsgroups = [
+        EffectsGroup
+            scope = Source
+            stackinggroup = "SHIELD_PART_STACK"
+            priority = 34
+            effects = SetMaxShield value = Value + PartCapacity name = "SH_BLACK"
+    ]
     icon = "icons/ship_parts/blackshield.png"
 
 #include "shield.macros"

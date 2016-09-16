@@ -4,11 +4,19 @@ Part
     exclusions = [[ALL_SHIELDS]]
     class = Shield
     capacity = 5
+    NoDefaultCapacityEffect
     mountableSlotTypes = Internal
     buildcost = 50 * [[FLEET_UPKEEP_MULTIPLICATOR]] * [[SHIP_PART_COST_MULTIPLIER]]
     buildtime = 4
     tags = [ "PEDIA_PC_SHIELD" ]
     location = OwnedBy empire = Source.Owner
+    effectsgroups = [
+        EffectsGroup
+            scope = Source
+            stackinggroup = "SHIELD_PART_STACK"
+            priority = 36
+            effects = SetMaxShield value = Value + PartCapacity name = "SH_DEFLECTOR"
+    ]
     icon = "icons/ship_parts/deflector_shield.png"
 
 #include "shield.macros"

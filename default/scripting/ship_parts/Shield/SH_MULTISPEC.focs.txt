@@ -4,12 +4,18 @@ Part
     exclusions = [[ALL_SHIELDS]]
     class = Shield
     capacity = 10
+    NoDefaultCapacityEffect
     mountableSlotTypes = Internal
     buildcost = 100 * [[FLEET_UPKEEP_MULTIPLICATOR]] * [[SHIP_PART_COST_MULTIPLIER]]
     buildtime = 8
     tags = [ "PEDIA_PC_SHIELD" ]
     location = OwnedBy empire = Source.Owner
     effectsgroups = [
+        EffectsGroup
+            scope = Source
+            stackinggroup = "SHIELD_PART_STACK"
+            priority = 34
+            effects = SetMaxShield value = Value + PartCapacity name = "SH_MULTISPEC"
         EffectsGroup
             scope = Source
             activation = Star type = [Red Orange Yellow White Blue]
