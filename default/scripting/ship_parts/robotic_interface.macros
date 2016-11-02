@@ -1,0 +1,34 @@
+COUNT_ROBOTIC_INTERFACES
+'''
+Statistic Count condition = And [
+        Ship
+        OwnedBy empire = Source.Owner
+        VisibleToEmpire empire = Source.Owner
+        HasTag name = "ROBOTIC"
+        HasTag name = "ROBOTIC_INTERFACE"
+        Not Source
+        WithinStarlaneJumps jumps = 0 condition = Source
+    ]
+'''
+
+RI_SHIELD_VALUE
+'''
+min(min(
+        [[COUNT_ROBOTIC_INTERFACES]],
+        (([[COUNT_ROBOTIC_INTERFACES]] * 7) ^ 0.5 )),
+    PartCapacity name = "SH_ROBOTIC_INTERFACE_SHIELDS")
+'''
+
+EG_ROBOTIC_INTERFACE_SHIELD
+'''
+EffectsGroup
+    scope = And [
+        Source
+        HasTag name = "ROBOTIC"
+        HasTag name = "ROBOTIC_HULL"
+    ]
+    stackinggroup = "SHIELD_PART_STACK"
+    accountinglabel = "ROBOTIC_INTERFACE_EFFECT"
+    priority = 32
+    effects = SetMaxShield value = Value + [[RI_SHIELD_VALUE]]
+'''
