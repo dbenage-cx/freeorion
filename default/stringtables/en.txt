@@ -5428,6 +5428,20 @@ FIELDS_TEXT
 There are several Field Types, each having a distinctive, somewhat diffuse, appearance.  Right-clicking on them in the [[encyclopedia MAP_WINDOW_ARTICLE_TITLE]] brings up a small popup menu identifying their type and providing an option to look up their details.
 
 
+ROBOTIC_INTERFACE_TITLE
+Robotic Interface
+
+ROBOTIC_INTERFACE_TEXT
+'''[[encyclopedia ROBOTIC_SPECIES_TITLE]] species have an inherent ability to network together.
+These interfaces provide a link between a ships crew and other Robotic Interfaces.
+
+Given a close enough distance, the latency in this network is low enough to provide tactical insights during combat maneuvers.
+As more crews join a network, both the information and processing power of the network increases, though typically with diminishing returns.
+
+Certain ship parts are designed around this interface, providing advantages such as compensating for the trajectory of incoming weapons fire.
+'''
+
+
 ##
 ## Guides
 ##
@@ -12609,7 +12623,8 @@ With each additional [[encyclopedia ROBOTIC_INTERFACE_TITLE]] in-system, the shi
 
 This module is capable of generating a focused reflective shield for a brief period. The trajectory of incoming weapons fire is predicted utilizing the data points available to the network. Once an accurate trajectory is calculated, the shield must be generated in time to intercept. With enough data sets and computational power, the shield is able to generate in time to reach the maximum rate.
 
-This part is only usable by [[encyclopedia ROBOTIC_SPECIES_TITLE]] species and can only be placed in one of [[shiphull SH_ROBOTIC]], [[shiphull SH_SELF_GRAVITATING]], [[shiphull SH_NANOROBOTIC]], [[shiphull SH_LOGISTICS_FACILITATOR]], [[shiphull SH_TITANIC]].
+This part is only usable in ships from the [[encyclopedia HULL_LINE_ROBOTIC]] series of hulls and when piloted by a [[encyclopedia ROBOTIC_SPECIES_TITLE]] species.
+Any other shield parts on the ship will be deactivated.
 '''
 
 CO_COLONY_POD

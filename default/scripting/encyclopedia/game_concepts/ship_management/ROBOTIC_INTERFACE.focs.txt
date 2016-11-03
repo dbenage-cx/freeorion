@@ -1,0 +1,6 @@
+Article
+    name = "ROBOTIC_INTERFACE_TITLE"
+    category = "SHIP_MANAGEMENT_TITLE"
+    short_description = "ROBOTIC_INTERFACE_TITLE"
+    description = "ROBOTIC_INTERFACE_TEXT"
+    icon = "icons/ship_parts/robotic-interface-shields.png"
