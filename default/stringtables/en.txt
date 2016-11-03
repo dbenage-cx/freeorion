@@ -12601,9 +12601,15 @@ SH_ROBOTIC_INTERFACE_SHIELDS
 Robotic Interface: Shields
 
 SH_ROBOTIC_INTERFACE_SHIELDS_DESC
-'''Robotic Interface: Shields have a shield strength of roughly 1 shield strength per other Robotic Interface: Shielded ships at the same location, though with diminishing returns at higher numbers. The effect is capped at 20 shield strength, only applies to ships crewed by [[encyclopedia ROBOTIC_SPECIES_TITLE]] species and can only be placed in a [[encyclopedia HULL_LINE_ROBOTIC]] ship.
+'''A shield module with an integrated [[encyclopedia ROBOTIC_INTERFACE_TITLE]].
+Only applies to ships crewed by [[encyclopedia ROBOTIC_SPECIES_TITLE]] species and placed in a [[encyclopedia HULL_LINE_ROBOTIC]] ship.
 
-Robotic species have an inherent ability to network together and thereby substantially increase their sheer computational power. Robotic Interface: Shields use that network to calculate the trajectory of incoming fire and applying shield strength at the point of impact.
+Provides a shield strength of 1.0 when another [[encyclopedia ROBOTIC_INTERFACE_TITLE]] is within the same system.
+With each additional [[encyclopedia ROBOTIC_INTERFACE_TITLE]] in-system, the shield strength increases, up to a peak strength of 20.0.
+
+This module is capable of generating a focused reflective shield for a brief period. The trajectory of incoming weapons fire is predicted utilizing the data points available to the network. Once an accurate trajectory is calculated, the shield must be generated in time to intercept. With enough data sets and computational power, the shield is able to generate in time to reach the maximum rate.
+
+This part is only usable by [[encyclopedia ROBOTIC_SPECIES_TITLE]] species and can only be placed in one of [[shiphull SH_ROBOTIC]], [[shiphull SH_SELF_GRAVITATING]], [[shiphull SH_NANOROBOTIC]], [[shiphull SH_LOGISTICS_FACILITATOR]], [[shiphull SH_TITANIC]].
 '''
 
 CO_COLONY_POD
