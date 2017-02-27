@@ -47,6 +47,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <unordered_map>
 
 class RotatingPlanetControl;
 
@@ -494,6 +495,8 @@ public:
 
     void SizeMove(const GG::Pt& ul, const GG::Pt& lr) override;
 
+    void Show(bool children = true) override;
+
     void                    Select(bool selected);
 
     void                    Refresh();                      ///< updates panels, shows / hides colonize button, redoes layout of infopanels
@@ -523,13 +526,26 @@ public:
 
     mutable boost::signals2::signal<void (int)> BuildingRightClickedSignal;
 
+    /** emitted when an order button changes state, so panels for other planets
+     * in the same system will update controls */
+    mutable boost::signals2::signal<void (const std::string&, bool)> OrderButtonChangedSignal;
+
+    typedef std::shared_ptr<GG::StateButton> StateButtonT;
+    typedef std::shared_ptr<GG::StateButtonRepresenter> StateBtnRepT;
+
 private:
     void                    DoLayout();
     void                    RefreshPlanetGraphic();
     void                    SetFocus(const std::string& focus); ///< set the focus of the planet to \a focus
-    void                    ClickColonize();                    ///< called if colonize button is pressed
-    void                    ClickInvade();                      ///< called if invade button is pressed
-    void                    ClickBombard();                     ///< called if bombard button is pressed
+
+    /** called if colonize button is pressed */
+    void ClickColonize(bool cancel = false);
+
+    /** called if invade button is pressed */
+    void ClickInvade(bool cancel = false);
+
+    /** called if bombard button is pressed */
+    void ClickBombard(bool cancel = false);
 
     void                    FocusDropListSelectionChangedSlot(GG::DropDownList::iterator selected); ///< called when droplist selection changes, emits FocusChangedSignal
     /** Called when focus drop list opens/closes to inform that it now \p is_open. */
@@ -538,9 +554,20 @@ private:
     int                     m_planet_id;                ///< id for the planet with is represented by this planet panel
     GG::TextControl*        m_planet_name;              ///< planet name
     GG::Label*              m_env_size;                 ///< indicates size and planet environment rating uncolonized planets
-    GG::Button*             m_colonize_button;          ///< btn which can be pressed to colonize this planet
-    GG::Button*             m_invade_button;            ///< btn which can be pressed to invade this planet
-    GG::Button*             m_bombard_button;           ///< btn which can be pressed to bombard this planet
+
+    /** StateButton%s for orders related to this planet */
+    std::unordered_map<std::string, StateButtonT> m_order_buttons;
+
+    /** StateButtonRepresenter%s for order buttons */
+    std::unordered_map<std::string, StateBtnRepT> m_order_representers;
+
+    /** BrowseInfoWnd%s (tooltips) for order buttons */
+    std::unordered_map<std::string,
+                       std::shared_ptr<TextBrowseWnd>> m_order_tooltips;
+
+    /** Show all order buttons, by default they are hidden */
+    bool m_show_orders;
+
     GG::DynamicGraphic*     m_planet_graphic;           ///< image of the planet (can be a frameset); this is now used only for asteroids
     RotatingPlanetControl*  m_rotating_planet_graphic;  ///< a realtime-rendered planet that rotates, with a textured surface mapped onto it
     bool                    m_selected;                 ///< is this planet panel selected
@@ -858,6 +885,12 @@ namespace {
     }
 
     const GG::Y PLANET_PANEL_TOP = GG::Y(140);
+    const std::string ORDER_BOMBARD = UserStringNop("PL_BOMBARD");
+    const std::string ORDER_BOMBARD_CANCEL = UserStringNop("PL_CANCEL_BOMBARD");
+    const std::string ORDER_INVADE = UserStringNop("PL_INVADE");
+    const std::string ORDER_INVADE_CANCEL = UserStringNop("PL_CANCEL_INVADE");
+    const std::string ORDER_COLONIZE = UserStringNop("PL_COLONIZE");
+    const std::string ORDER_COLONIZE_CANCEL = UserStringNop("PL_CANCEL_COLONIZE");
 }
 
 ////////////////////////////////////////////////
@@ -880,9 +913,7 @@ SidePanel::PlanetPanel::PlanetPanel(GG::X w, int planet_id, StarType star_type) 
     m_planet_id(planet_id),
     m_planet_name(nullptr),
     m_env_size(nullptr),
-    m_colonize_button(nullptr),
-    m_invade_button(nullptr),
-    m_bombard_button(nullptr),
+    m_show_orders(false),
     m_planet_graphic(nullptr),
     m_rotating_planet_graphic(nullptr),
     m_selected(false),
@@ -933,6 +964,7 @@ SidePanel::PlanetPanel::PlanetPanel(GG::X w, int planet_id, StarType star_type) 
         font = ClientUI::GetFont(ClientUI::Pts()*4/3);
 
     GG::X panel_width = w - MaxPlanetDiameter() - 2*EDGE_PAD;
+    int tooltip_delay = GetOptionsDB().Get<int>("UI.tooltip-delay");
 
     // create planet name control
     m_planet_name = new GG::TextControl(GG::X0, GG::Y0, GG::X1, GG::Y1, " ", font, ClientUI::TextColor());
@@ -947,7 +979,7 @@ SidePanel::PlanetPanel::PlanetPanel(GG::X w, int planet_id, StarType star_type) 
     GG::Connect(m_focus_drop->DropDownOpenedSignal,             &SidePanel::PlanetPanel::FocusDropListOpened,  this);
     GG::Connect(m_focus_drop->SelChangedSignal,                 &SidePanel::PlanetPanel::FocusDropListSelectionChangedSlot,  this);
     GG::Connect(this->FocusChangedSignal,                       &SidePanel::PlanetPanel::SetFocus, this);
-    m_focus_drop->SetBrowseModeTime(GetOptionsDB().Get<int>("UI.tooltip-delay"));
+    m_focus_drop->SetBrowseModeTime(tooltip_delay);
     m_focus_drop->SetStyle(GG::LIST_NOSORT | GG::LIST_SINGLESEL);
     m_focus_drop->ManuallyManageColProps();
     m_focus_drop->SetNumCols(2);
@@ -982,14 +1014,62 @@ SidePanel::PlanetPanel::PlanetPanel(GG::X w, int planet_id, StarType star_type) 
     AttachChild(m_env_size);
 
 
-    m_colonize_button = new CUIButton(UserString("PL_COLONIZE"));
-    GG::Connect(m_colonize_button->LeftClickedSignal, &SidePanel::PlanetPanel::ClickColonize, this);
+    boost::filesystem::path icon_dir(ClientUI::ArtDir() / "icons/buttons");
 
-    m_invade_button   = new CUIButton(UserString("PL_INVADE"));
-    GG::Connect(m_invade_button->LeftClickedSignal, &SidePanel::PlanetPanel::ClickInvade, this);
+    m_order_representers.emplace(ORDER_BOMBARD,
+        std::make_shared<CUIIconButtonRepresenter>(
+            std::make_shared<GG::SubTexture>(
+                ClientUI::GetTexture(icon_dir / "order_bombard.png")),
+            GG::CLR_DARK_GRAY,
+            std::make_shared<GG::SubTexture>(
+                ClientUI::GetTexture(icon_dir / "order_bombard_clicked.png")),
+            GG::CLR_LIGHT_GRAY));
+    m_order_representers.emplace(ORDER_INVADE,
+        std::make_shared<CUIIconButtonRepresenter>(
+            std::make_shared<GG::SubTexture>(
+                ClientUI::GetTexture(icon_dir / "order_invade.png")),
+            GG::CLR_DARK_GRAY,
+            std::make_shared<GG::SubTexture>(
+                ClientUI::GetTexture(icon_dir / "order_invade_clicked.png")),
+            GG::CLR_LIGHT_GRAY));
+    m_order_representers.emplace(ORDER_COLONIZE,
+        std::make_shared<CUIIconButtonRepresenter>(
+            std::make_shared<GG::SubTexture>(
+                ClientUI::GetTexture(icon_dir / "order_colonize.png")),
+            GG::CLR_DARK_GRAY,
+            std::make_shared<GG::SubTexture>(
+                ClientUI::GetTexture(icon_dir / "order_colonize_clicked.png")),
+            GG::CLR_LIGHT_GRAY));
 
-    m_bombard_button  = new CUIButton(UserString("PL_BOMBARD"));
-    GG::Connect(m_bombard_button->LeftClickedSignal, &SidePanel::PlanetPanel::ClickBombard, this);
+    m_order_buttons.emplace(ORDER_BOMBARD,
+        std::make_shared<CUIStateButton>("", GG::FORMAT_NONE,
+                                         m_order_representers.at(ORDER_BOMBARD)));
+    m_order_buttons.emplace(ORDER_INVADE,
+        std::make_shared<CUIStateButton>("", GG::FORMAT_NONE,
+                                         m_order_representers.at(ORDER_INVADE)));
+    m_order_buttons.emplace(ORDER_COLONIZE,
+        std::make_shared<CUIStateButton>("", GG::FORMAT_NONE,
+                                         m_order_representers.at(ORDER_COLONIZE)));
+
+    for (auto& button : m_order_buttons) {
+        button.second->SetName(button.first);
+        AttachChild(button.second.get());
+        m_order_tooltips.emplace(button.first,
+            std::make_shared<TextBrowseWnd>(UserString(button.first), ""));
+        button.second->SetBrowseModeTime(tooltip_delay);
+        button.second->SetBrowseInfoWnd(m_order_tooltips.at(button.first));
+        button.second->GetLabel()->SetFont(
+            ClientUI::GetBoldFont((ClientUI::Pts() / 4) * 3));
+        button.second->Disable();
+        button.second->Hide();
+    }
+
+    m_order_buttons.at(ORDER_BOMBARD)->CheckedSignal.connect(
+        [this](bool checked) { ClickBombard(!checked); });
+    m_order_buttons.at(ORDER_INVADE)->CheckedSignal.connect(
+        [this](bool checked) { ClickInvade(!checked); });
+    m_order_buttons.at(ORDER_COLONIZE)->CheckedSignal.connect(
+        [this](bool checked) { ClickColonize(!checked); });
 
     SetChildClippingMode(ClipToWindow);
 
@@ -999,9 +1079,6 @@ SidePanel::PlanetPanel::PlanetPanel(GG::X w, int planet_id, StarType star_type) 
 }
 
 SidePanel::PlanetPanel::~PlanetPanel() {
-    delete m_colonize_button;
-    delete m_invade_button;
-    delete m_bombard_button;
     delete m_env_size;
     delete m_focus_drop;
     delete m_population_panel;
@@ -1012,65 +1089,91 @@ SidePanel::PlanetPanel::~PlanetPanel() {
 }
 
 void SidePanel::PlanetPanel::DoLayout() {
-    GG::X left = GG::X0 + MaxPlanetDiameter() + EDGE_PAD;
-    GG::X right = left + Width() - MaxPlanetDiameter() - 2*EDGE_PAD;
-    GG::Y y = GG::Y0;
+    GG::Pt ul(GG::X0 + MaxPlanetDiameter() + EDGE_PAD, GG::Y0);
+    GG::Pt lr(ul.x + Width() - MaxPlanetDiameter() - 2 * EDGE_PAD, GG::Y0);
 
     if (m_planet_name) {
-        m_planet_name->MoveTo(GG::Pt(left, y));
-        y += m_planet_name->Height();                           // no interpanel space needed here, I declare arbitrarily
+        m_planet_name->MoveTo(ul);
+        // no interpanel space needed here
+        ul.y += m_planet_name->Height();
     }
 
     if (m_specials_panel) {
-        m_specials_panel->SizeMove(GG::Pt(left, y), GG::Pt(right, y + m_specials_panel->Height())); // assumed to always be this Wnd's child
-        y += m_specials_panel->Height() + EDGE_PAD;
+        // assumed to always be this Wnd's child
+        m_specials_panel->SizeMove(ul, GG::Pt(lr.x, ul.y + m_specials_panel->Height()));
+        ul.y += m_specials_panel->Height() + EDGE_PAD;
     }
 
     if (m_env_size && m_env_size->Parent() == this) {
-        m_env_size->MoveTo(GG::Pt(left, y));
-        y += m_env_size->Height() + EDGE_PAD;
+        m_env_size->MoveTo(ul);
+        ul.y += m_env_size->Height() + EDGE_PAD;
     }
 
-    if (m_colonize_button && m_colonize_button->Parent() == this) {
-        m_colonize_button->MoveTo(GG::Pt(left, y));
-        m_colonize_button->Resize(GG::Pt(GG::X(ClientUI::Pts()*15), m_colonize_button->MinUsableSize().y));
-        y += m_colonize_button->Height() + EDGE_PAD;
-    }
-    if (m_invade_button && m_invade_button->Parent() == this) {
-        m_invade_button->MoveTo(GG::Pt(left, y));
-        m_invade_button->Resize(GG::Pt(GG::X(ClientUI::Pts()*15), m_invade_button->MinUsableSize().y));
-        y += m_invade_button->Height() + EDGE_PAD;
-    }
-    if (m_bombard_button && m_bombard_button->Parent() == this) {
-        m_bombard_button->MoveTo(GG::Pt(left, y));
-        m_bombard_button->Resize(GG::Pt(GG::X(ClientUI::Pts()*15), m_bombard_button->MinUsableSize().y));
-        y += m_bombard_button->Height() + EDGE_PAD;
-    }
+    GG::Pt icon_sz({GG::X(ClientUI::Pts() * 5 / 2), GG::Y(ClientUI::Pts() * 5 / 2)});
+    int icon_margin(ClientUI::Pts() / 2);
+    GG::X icon_left(ul.x);
+    GG::X icon_left_init(ul.x);
 
-    if (m_focus_drop && m_focus_drop->Parent() == this) {
-        m_focus_drop->MoveTo(GG::Pt(left, y));
+    bool show_focus = m_focus_drop && m_focus_drop->Parent() == this;
+    if (show_focus) {
+        m_focus_drop->MoveTo(GG::Pt(ul.x, ul.y));
         m_focus_drop->Resize(GG::Pt(MeterIconSize().x*4, MeterIconSize().y*3/2 + 4));
-        y += m_focus_drop->Height() + EDGE_PAD;
+        icon_left += m_focus_drop->Width() + (icon_margin * 3);
+        icon_left_init = icon_left;
+    }
+
+    // If any order buttons are enabled, display them all
+    for (auto& button : m_order_buttons)
+        m_show_orders |= !button.second->Disabled();
+
+    if (!m_show_orders) {
+        // hide all order buttons
+        for (auto& button : m_order_buttons) {
+            button.second->Hide();
+            button.second->GetLabel()->Hide();
+        }
+
+        if (show_focus)
+            ul.y += m_focus_drop->Height() + EDGE_PAD;
+
+    } else {
+        for (auto& button : m_order_buttons) {
+            if (icon_left + icon_sz.x + EDGE_PAD > LowerRight().x) {
+                // shift down if button does not fit horizontally
+                icon_left = icon_left_init;
+                ul.y += icon_sz.y + icon_margin;
+            }
+            button.second->SizeMove({icon_left, ul.y},
+                                    {icon_left + icon_sz.x, ul.y + icon_sz.y});
+            icon_left += icon_sz.x + icon_margin;
+            button.second->Show();
+            button.second->GetLabel()->Show();
+        }
+
+        if (show_focus)
+            ul.y += std::max(m_focus_drop->Height(), icon_sz.y) + EDGE_PAD;
+        else
+            ul.y += icon_sz.y + EDGE_PAD;
     }
 
     if (m_population_panel && m_population_panel->Parent() == this) {
-        m_population_panel->SizeMove(GG::Pt(left, y), GG::Pt(right, y + m_population_panel->Height()));
-        y += m_population_panel->Height() + EDGE_PAD;
+        m_population_panel->SizeMove(ul, GG::Pt(lr.x, ul.y + m_population_panel->Height()));
+        ul.y += m_population_panel->Height() + EDGE_PAD;
     }
 
     if (m_resource_panel && m_resource_panel->Parent() == this) {
-        m_resource_panel->SizeMove(GG::Pt(left, y), GG::Pt(right, y + m_resource_panel->Height()));
-        y += m_resource_panel->Height() + EDGE_PAD;
+        m_resource_panel->SizeMove(ul, GG::Pt(lr.x, ul.y + m_resource_panel->Height()));
+        ul.y += m_resource_panel->Height() + EDGE_PAD;
     }
 
     if (m_military_panel && m_military_panel->Parent() == this) {
-        m_military_panel->SizeMove(GG::Pt(left, y), GG::Pt(right, y + m_military_panel->Height()));
-        y += m_military_panel->Height() + EDGE_PAD;
+        m_military_panel->SizeMove(ul, GG::Pt(lr.x, ul.y + m_military_panel->Height()));
+        ul.y += m_military_panel->Height() + EDGE_PAD;
     }
 
     if (m_buildings_panel && m_buildings_panel->Parent() == this) {
-        m_buildings_panel->SizeMove(GG::Pt(left, y), GG::Pt(right, y + m_buildings_panel->Height()));
-        y += m_buildings_panel->Height() + EDGE_PAD;
+        m_buildings_panel->SizeMove(ul, GG::Pt(lr.x, ul.y + m_buildings_panel->Height()));
+        ul.y += m_buildings_panel->Height() + EDGE_PAD;
     }
 
     GG::Y min_height(MaxPlanetDiameter());
@@ -1082,7 +1185,7 @@ void SidePanel::PlanetPanel::DoLayout() {
     //else if (m_rotating_planet_graphic)
     //    min_height = m_rotating_planet_graphic->Height();
 
-    Resize(GG::Pt(Width(), std::max(y, min_height)));
+    Resize(GG::Pt(Width(), std::max(ul.y, min_height)));
 
     // DoLayout() is only called during prerender so prerender the specials panel
     // in case it has pending changes.
@@ -1187,6 +1290,19 @@ namespace {
         return false;
     };
 
+    bool OwnedAvailableShipInSystem(int system_id, int empire_id) {
+        std::shared_ptr<const System> system = GetSystem(system_id);
+        if (!system || empire_id == ALL_EMPIRES)
+            return false;
+        for (const auto& ship_id : system->ShipIDs()) {
+            std::shared_ptr<const Ship> ship = GetShip(ship_id);
+            if (ship)
+                if (IsAvailable(ship, system_id, empire_id))
+                    return true;
+        }
+        return false;
+    }
+
     /** Content tags that note if a Ship should be auto-selected for bombarding a Planet.
      *  These tags are determined from the TAG_BOMBARD_PREFIX tags of @a ship and potentially match those of a Planet.
      *  If the Ship contains the content tag defined in TAG_BOMBARD_ALWAYS, only that tag will be returned.
@@ -1286,7 +1402,7 @@ std::shared_ptr<const Ship> ValidSelectedColonyShip(int system_id) {
     return nullptr;
 }
 
-int AutomaticallyChosenColonyShip(int target_planet_id) {
+int AutomaticallyChosenColonyShip(int target_planet_id, bool include_ordered) {
     int empire_id = HumanClientApp::GetApp()->EmpireID();
     if (empire_id == ALL_EMPIRES)
         return INVALID_OBJECT_ID;
@@ -1314,6 +1430,10 @@ int AutomaticallyChosenColonyShip(int target_planet_id) {
     // get all ships that can colonize and that are free to do so in the
     // specified planet'ssystem and that can colonize the requested planet
     for (std::shared_ptr<const Ship> ship : ships) {
+        if (include_ordered) {
+            if (ship->OrderedColonizePlanet() == target_planet_id)
+                return ship->ID();
+        }
         if (!AvailableToColonize(ship, system_id, empire_id))
             continue;
         if (!CanColonizePlanetType(ship, target_planet_type))
@@ -1395,7 +1515,7 @@ int AutomaticallyChosenColonyShip(int target_planet_id) {
     return best_ship;
 }
 
-std::set<std::shared_ptr<const Ship>> AutomaticallyChosenInvasionShips(int target_planet_id) {
+std::set<std::shared_ptr<const Ship>> AutomaticallyChosenInvasionShips(int target_planet_id, bool ordered_only = false) {
     std::set<std::shared_ptr<const Ship>> retval;
 
     int empire_id = HumanClientApp::GetApp()->EmpireID();
@@ -1420,6 +1540,12 @@ std::set<std::shared_ptr<const Ship>> AutomaticallyChosenInvasionShips(int targe
 
     double invasion_troops = 0;
     for (std::shared_ptr<const Ship> ship : Objects().FindObjects<Ship>()) {
+        if (ordered_only) {
+            if (ship->OrderedInvadePlanet() == target_planet_id)
+                retval.insert(ship);
+            continue;
+        }
+
         if (!AvailableToInvade(ship, system_id, empire_id))
             continue;
 
@@ -1437,7 +1563,7 @@ std::set<std::shared_ptr<const Ship>> AutomaticallyChosenInvasionShips(int targe
 /** Returns valid Ship%s capable of bombarding a given Planet.
  * @param target_planet_id ID of Planet to potentially bombard
  */
-std::set<std::shared_ptr<const Ship>> AutomaticallyChosenBombardShips(int target_planet_id) {
+std::set<std::shared_ptr<const Ship>> AutomaticallyChosenBombardShips(int target_planet_id, bool ordered_only = false) {
     std::set<std::shared_ptr<const Ship>> retval;
 
     int empire_id = HumanClientApp::GetApp()->EmpireID();
@@ -1457,6 +1583,12 @@ std::set<std::shared_ptr<const Ship>> AutomaticallyChosenBombardShips(int target
         return retval;
 
     for (std::shared_ptr<const Ship> ship : Objects().FindObjects<Ship>()) {
+        if (ordered_only) {
+            if (ship->OrderedBombardPlanet() == target_planet_id)
+                retval.insert(ship);
+            continue;
+        }
+
         // owned ship is capable of bombarding a planet in this system
         if (!AvailableToBombard(ship, system_id, empire_id))
             continue;
@@ -1509,17 +1641,8 @@ void SidePanel::PlanetPanel::Refresh() {
         delete m_buildings_panel;
         m_buildings_panel = nullptr;
 
-        DetachChild(m_colonize_button);
-        delete m_colonize_button;
-        m_colonize_button = nullptr;
-
-        DetachChild(m_invade_button);
-        delete m_invade_button;
-        m_invade_button = nullptr;
-
-        DetachChild(m_bombard_button);
-        delete m_bombard_button;
-        m_bombard_button = nullptr;
+        for (auto& button : m_order_buttons)
+            DetachChild(button.second.get());
 
         DetachChild(m_specials_panel);
         delete m_specials_panel;
@@ -1590,20 +1713,28 @@ void SidePanel::PlanetPanel::Refresh() {
     }
 
     std::shared_ptr<const Ship> selected_colony_ship = ValidSelectedColonyShip(SidePanel::SystemID());
-    if (!selected_colony_ship && FleetUIManager::GetFleetUIManager().SelectedShipIDs().empty())
-        selected_colony_ship = GetShip(AutomaticallyChosenColonyShip(m_planet_id));
+    if (!selected_colony_ship &&
+        FleetUIManager::GetFleetUIManager().SelectedShipIDs().empty())
+    {
+        selected_colony_ship = GetShip(AutomaticallyChosenColonyShip(m_planet_id, true));
+    }
 
     std::set<std::shared_ptr<const Ship>> invasion_ships = ValidSelectedInvasionShips(SidePanel::SystemID());
     if (invasion_ships.empty()) {
         std::set<std::shared_ptr<const Ship>> autoselected_invasion_ships = AutomaticallyChosenInvasionShips(m_planet_id);
         invasion_ships.insert(autoselected_invasion_ships.begin(), autoselected_invasion_ships.end());
     }
+    const auto& ordered_invasion_ships =
+        AutomaticallyChosenInvasionShips(m_planet_id, true);
 
     std::set<std::shared_ptr<const Ship>> bombard_ships = ValidSelectedBombardShips(SidePanel::SystemID());
     if (bombard_ships.empty()) {
         std::set<std::shared_ptr<const Ship>> autoselected_bombard_ships = AutomaticallyChosenBombardShips(m_planet_id);
         bombard_ships.insert(autoselected_bombard_ships.begin(), autoselected_bombard_ships.end());
     }
+    const auto& ordered_bombard_ships =
+        AutomaticallyChosenBombardShips(m_planet_id, true);
+
 
     std::string colony_ship_species_name;
     float colony_ship_capacity = 0.0f;
@@ -1627,17 +1758,17 @@ void SidePanel::PlanetPanel::Refresh() {
     bool has_defenses =     planet->CurrentMeterValue(METER_MAX_SHIELD) > 0.0 || 
                                     planet->CurrentMeterValue(METER_MAX_DEFENSE) > 0.0 ||
                                     planet->CurrentMeterValue(METER_MAX_TROOPS) > 0.0;
-    bool being_colonized =  planet->IsAboutToBeColonized();
+    bool being_colonized =  selected_colony_ship && planet->IsAboutToBeColonized();
     bool outpostable =                   !populated && (  !has_owner /*&& !shielded*/         ) && visible && !being_colonized;
     bool colonizable =      habitable && !populated && ( (!has_owner /*&& !shielded*/) || mine) && visible && !being_colonized;
     bool can_colonize =     selected_colony_ship && ((colonizable  && (colony_ship_capacity > 0.0f)) || (outpostable && (colony_ship_capacity == 0.0f)));
 
     bool at_war_with_me =   !mine && (populated || (has_owner && Empires().GetDiplomaticStatus(client_empire_id, planet->Owner()) == DIPLO_WAR));
 
-    bool being_invaded =    planet->IsAboutToBeInvaded();
+    bool being_invaded =    !ordered_invasion_ships.empty() && planet->IsAboutToBeInvaded();
     bool invadable =        at_war_with_me && !shielded && visible && !being_invaded && !invasion_ships.empty();
 
-    bool being_bombarded =  planet->IsAboutToBeBombarded();
+    bool being_bombarded =  !ordered_bombard_ships.empty() && planet->IsAboutToBeBombarded();
     bool bombardable =      at_war_with_me && visible && !being_bombarded && !bombard_ships.empty();
 
     if (populated || SHOW_ALL_PLANET_PANELS) {
@@ -1665,9 +1796,6 @@ void SidePanel::PlanetPanel::Refresh() {
     }
 
 
-    DetachChild(m_invade_button);
-    DetachChild(m_colonize_button);
-    DetachChild(m_bombard_button);
     DetachChild(m_focus_drop);
 
     std::string species_name;
@@ -1693,7 +1821,14 @@ void SidePanel::PlanetPanel::Refresh() {
         // hide everything
     }
 
-    if (can_colonize) {
+    // show all order buttons if any owned ships present and planet not owned
+    // TODO hide for allied planets?
+    m_show_orders = !mine && OwnedAvailableShipInSystem(SidePanel::SystemID(),
+                                                        client_empire_id);
+    std::map<std::string, std::string> order_labels_text;
+    std::map<std::string, GG::Clr> order_labels_clr;
+
+    if (can_colonize || being_colonized) {
         // show colonize button; in case the chosen colony ship is not actually
         // selected, but has been chosen by AutomaticallyChosenColonyShip,
         // determine what population capacity to put on the conolnize buttone by
@@ -1701,7 +1836,6 @@ void SidePanel::PlanetPanel::Refresh() {
         // reading the target population, then setting the planet back as it was.
         // The results are cached for the duration of the turn in the
         // colony_projections map.
-        AttachChild(m_colonize_button);
         double planet_capacity;
         std::pair<int,int> this_pair = std::make_pair(selected_colony_ship->ID(), m_planet_id);
         std::map<std::pair<int,int>,float>::iterator pair_it = colony_projections.find(this_pair);
@@ -1728,62 +1862,116 @@ void SidePanel::PlanetPanel::Refresh() {
             GetUniverse().InhibitUniverseObjectSignals(false);
         }
 
-        std::string colonize_text;
         if (colony_ship_capacity > 0.0f) {
-            std::string initial_pop = DoubleToString(colony_ship_capacity, 2, false);
-
-            std::string clr_tag;
+            // set label color
+            /*
             if (planet_capacity < colony_ship_capacity && colony_ship_capacity > 0.0f)
-                clr_tag = GG::RgbaTag(ClientUI::StatDecrColor());
-            else if (planet_capacity > colony_ship_capacity && colony_ship_capacity > 0.0f)
-                clr_tag = GG::RgbaTag(ClientUI::StatIncrColor());
-            std::string clr_tag_close = (clr_tag.empty() ? "" : "</rgba>");
-            std::string target_pop = clr_tag + DoubleToString(planet_capacity, 2, false) + clr_tag_close;
+            {
+                order_labels_clr[ORDER_COLONIZE] = GG::CLR_LIGHT_GRAY;
 
-            colonize_text = boost::io::str(FlexibleFormat(UserString("PL_COLONIZE")) % initial_pop % target_pop);
+            } else if (planet_capacity > colony_ship_capacity &&
+                colony_ship_capacity > 0.0f)
+            {
+                order_labels_clr[ORDER_COLONIZE] = GG::CLR_LIGHT_GRAY;
+
+            } else 
+            */
+            if (can_colonize) {
+                order_labels_clr[ORDER_COLONIZE] = GG::CLR_WHITE;
+            } else {
+                order_labels_clr[ORDER_COLONIZE] = GG::CLR_LIGHT_GRAY;
+            }
+
+            // set label text
+            std::string initial_pop = DoubleToString(colony_ship_capacity, 2, false);
+            std::string target_pop = DoubleToString(planet_capacity, 2, false);
+            order_labels_text[ORDER_COLONIZE] = initial_pop + "/" + target_pop;
         } else {
-            colonize_text = UserString("PL_OUTPOST");
+            // outpost
+            order_labels_text[ORDER_COLONIZE] = "+0";
+            if (can_colonize) {
+                order_labels_clr[ORDER_COLONIZE] = GG::CLR_WHITE;
+            } else {
+                order_labels_clr[ORDER_COLONIZE] = GG::CLR_LIGHT_GRAY;
+            }
         }
-        if (m_colonize_button)
-            m_colonize_button->SetText(colonize_text);
-
-    } else if (being_colonized) {
-        // shown colonize cancel button
-        AttachChild(m_colonize_button);
-        if (m_colonize_button)
-            m_colonize_button->SetText(UserString("PL_CANCEL_COLONIZE"));
+        m_order_buttons.at(ORDER_COLONIZE)->Disable(false);
+        m_order_buttons.at(ORDER_COLONIZE)->SetCheck(being_colonized);
+        TraceLogger() << "colonize button enabled for planet " << m_planet_id;
+    } else {
+        order_labels_text[ORDER_COLONIZE] = "";
+        m_order_buttons.at(ORDER_COLONIZE)->SetCheck(false);
+        m_order_buttons.at(ORDER_COLONIZE)->Disable();
+        TraceLogger() << "colonize button disabled for planet " << m_planet_id;
     }
 
-    if (invadable) {
-        // show invade button
-        AttachChild(m_invade_button);
+    if (being_invaded) {
+        float ordered_troops = 0.0f;
+        for (const auto& ordered_invasion_ship : ordered_invasion_ships)
+            ordered_troops += ordered_invasion_ship->TroopCapacity();
+        order_labels_text[ORDER_INVADE] = DoubleToString(ordered_troops, 2, false);
+        order_labels_clr[ORDER_INVADE] = GG::CLR_LIGHT_GRAY;
+    } else if (invadable) {
         float invasion_troops = 0.0f;
-        for (std::shared_ptr<const Ship> invasion_ship : invasion_ships) {
+        for (std::shared_ptr<const Ship> invasion_ship : invasion_ships)
             invasion_troops += invasion_ship->TroopCapacity();
-        }
-        std::string invasion_troops_text = DoubleToString(invasion_troops, 2, false);
-        std::string invasion_text = boost::io::str(FlexibleFormat(UserString("PL_INVADE")) % invasion_troops_text);
-        if (m_invade_button)
-            m_invade_button->SetText(invasion_text);
-
-    } else if (being_invaded) {
-        // show invade cancel button
-        AttachChild(m_invade_button);
-        if (m_invade_button)
-            m_invade_button->SetText(UserString("PL_CANCEL_INVADE"));
+        order_labels_text[ORDER_INVADE] = DoubleToString(invasion_troops, 2, true);
+        order_labels_clr[ORDER_INVADE] = GG::CLR_WHITE;
+    } else  {
+        order_labels_text[ORDER_INVADE] = "";
     }
 
-    if (bombardable) {
-        // show bombard button
-        AttachChild(m_bombard_button);
-        if (m_bombard_button)
-            m_bombard_button->SetText(UserString("PL_BOMBARD"));
+    if (invadable || being_invaded) {
+        m_order_buttons.at(ORDER_INVADE)->Disable(false);
+        m_order_buttons.at(ORDER_INVADE)->SetCheck(being_invaded);
+        TraceLogger() << "invade button enabled for planet " << m_planet_id;
+    } else {
+        m_order_buttons.at(ORDER_INVADE)->SetCheck(false);
+        m_order_buttons.at(ORDER_INVADE)->Disable();
+        TraceLogger() << "invade button disabled for planet " << m_planet_id;
+    }
 
-    } else if (being_bombarded) {
+    if (being_bombarded) {
+        // TODO limit pop lost in auto selected ships or just in display?
+        float pop_lost = 0.0f;
+        for (const auto& ordered_bombard_ship : ordered_bombard_ships)
+            pop_lost += ordered_bombard_ship->BombardCapacity();
+        order_labels_text[ORDER_BOMBARD] = "-" + DoubleToString(pop_lost, 2, false);
+        order_labels_clr[ORDER_BOMBARD] = GG::CLR_LIGHT_GRAY;
         // show bombard cancel button
-        AttachChild(m_bombard_button);
-        if (m_bombard_button)
-            m_bombard_button->SetText(UserString("PL_CANCEL_BOMBARD"));
+        m_order_buttons.at(ORDER_BOMBARD)->Disable(false);
+        m_order_buttons.at(ORDER_BOMBARD)->SetCheck();
+        TraceLogger() << "bombard button enabled and checked for planet"
+                      << m_planet_id;
+    } else if (bombardable) {
+        float pop_lost = 0.0f;
+        for (const auto& bombard_ship : bombard_ships)
+            pop_lost += bombard_ship->BombardCapacity();
+        order_labels_text[ORDER_BOMBARD] = "-" + DoubleToString(pop_lost, 2, false);
+        order_labels_clr[ORDER_BOMBARD] = GG::CLR_WHITE;
+        // show bombard button
+        m_order_buttons.at(ORDER_BOMBARD)->Disable(false);
+        m_order_buttons.at(ORDER_BOMBARD)->SetCheck(false);
+        TraceLogger() << "bombard button enabled and unchecked for planet"
+                      << m_planet_id;
+    } else {
+        order_labels_text[ORDER_BOMBARD] = "";
+        m_order_buttons.at(ORDER_BOMBARD)->SetCheck(false);
+        m_order_buttons.at(ORDER_BOMBARD)->Disable();
+        TraceLogger() << "bombard button disabled for planet" << m_planet_id;
+    }
+
+    // update order button labels text and color
+    for (auto&& text : order_labels_text) {
+        const auto& order_it = m_order_buttons.find(text.first);
+        if (order_it != m_order_buttons.end())
+            order_it->second->GetLabel()->SetText(text.second);
+    }
+
+    for (auto&& clr : order_labels_clr) {
+        const auto& order_it = m_order_buttons.find(clr.first);
+        if (order_it != m_order_buttons.end())
+            order_it->second->SetTextColor(clr.second);
     }
 
     m_env_size->SetText(env_size_text);
@@ -2243,7 +2431,22 @@ namespace {
     }
 }
 
-void SidePanel::PlanetPanel::ClickColonize() {
+void SidePanel::PlanetPanel::Show(bool children) {
+    Wnd::Show(children);
+    if (m_show_orders) {
+        for (auto& button : m_order_buttons) {
+            button.second->Show();
+            button.second->GetLabel()->Show();
+        }
+    } else {
+        for (auto& button : m_order_buttons) {
+            button.second->Hide();
+            button.second->GetLabel()->Hide();
+        }
+    }
+}
+
+void SidePanel::PlanetPanel::ClickColonize(bool cancel ) {
     // order or cancel colonization, depending on whether it has previously
     // been ordered
 
@@ -2255,12 +2458,18 @@ void SidePanel::PlanetPanel::ClickColonize() {
     if (empire_id == ALL_EMPIRES)
         return;
 
-    std::map<int, int> pending_colonization_orders = PendingColonizationOrders();
-    std::map<int, int>::const_iterator it = pending_colonization_orders.find(m_planet_id);
-
-    if (it != pending_colonization_orders.end()) {
+    if (cancel) {
         // cancel previous colonization order for planet
-        HumanClientApp::GetApp()->Orders().RescindOrder(it->second);
+        std::map<int, int> pending_colonization_orders = PendingColonizationOrders();
+        std::map<int, int>::const_iterator it = pending_colonization_orders.find(m_planet_id);
+
+        if (it != pending_colonization_orders.end())
+            HumanClientApp::GetApp()->Orders().RescindOrder(it->second);
+        else
+            WarnLogger() << "No valid colonize order found to cancel";
+
+        m_order_tooltips.at(ORDER_COLONIZE)->GetTitleTextLabel()->SetText(
+            UserString(ORDER_COLONIZE));
 
     } else {
         // find colony ship and order it to colonize
@@ -2281,10 +2490,13 @@ void SidePanel::PlanetPanel::ClickColonize() {
 
         HumanClientApp::GetApp()->Orders().IssueOrder(OrderPtr(
             new ColonizeOrder(empire_id, ship->ID(), m_planet_id)));
+        m_order_tooltips.at(ORDER_COLONIZE)->GetTitleTextLabel()->SetText(
+            UserString(ORDER_COLONIZE_CANCEL));
     }
+    OrderButtonChangedSignal(ORDER_COLONIZE, cancel);
 }
 
-void SidePanel::PlanetPanel::ClickInvade() {
+void SidePanel::PlanetPanel::ClickInvade(bool cancel) {
     // order or cancel invasion, depending on whether it has previously
     // been ordered
 
@@ -2298,14 +2510,21 @@ void SidePanel::PlanetPanel::ClickInvade() {
     if (empire_id == ALL_EMPIRES)
         return;
 
-    std::map<int, std::set<int> > pending_invade_orders = PendingInvadeOrders();
-    std::map<int, std::set<int> >::const_iterator it = pending_invade_orders.find(m_planet_id);
-
-    if (it != pending_invade_orders.end()) {
-        const std::set<int>& planet_invade_orders = it->second;
+    if (cancel) {
         // cancel previous invasion orders for this planet
-        for (int order_id : planet_invade_orders)
-        { HumanClientApp::GetApp()->Orders().RescindOrder(order_id); }
+        std::map<int, std::set<int> > pending_invade_orders = PendingInvadeOrders();
+        std::map<int, std::set<int> >::const_iterator it = pending_invade_orders.find(m_planet_id);
+
+        if (it != pending_invade_orders.end()) {
+            const std::set<int>& planet_invade_orders = it->second;
+            for (int order_id : planet_invade_orders)
+            { HumanClientApp::GetApp()->Orders().RescindOrder(order_id); }
+        } else {
+            WarnLogger() << "No valid invade order to cancel";
+        }
+
+        m_order_tooltips.at(ORDER_INVADE)->GetTitleTextLabel()->SetText(
+            UserString(ORDER_INVADE));
 
     } else {
         // order selected invasion ships to invade planet
@@ -2325,10 +2544,13 @@ void SidePanel::PlanetPanel::ClickInvade() {
             HumanClientApp::GetApp()->Orders().IssueOrder(OrderPtr(
                 new InvadeOrder(empire_id, ship->ID(), m_planet_id)));
         }
+        m_order_tooltips.at(ORDER_INVADE)->GetTitleTextLabel()->SetText(
+            UserString(ORDER_INVADE_CANCEL));
     }
+    OrderButtonChangedSignal(ORDER_INVADE, cancel);
 }
 
-void SidePanel::PlanetPanel::ClickBombard() {
+void SidePanel::PlanetPanel::ClickBombard(bool cancel) {
     // order or cancel bombard, depending on whether it has previously
     // been ordered
 
@@ -2342,14 +2564,21 @@ void SidePanel::PlanetPanel::ClickBombard() {
     if (empire_id == ALL_EMPIRES)
         return;
 
-    std::map<int, std::set<int> > pending_bombard_orders = PendingBombardOrders();
-    std::map<int, std::set<int> >::const_iterator it = pending_bombard_orders.find(m_planet_id);
-
-    if (it != pending_bombard_orders.end()) {
-        const std::set<int>& planet_bombard_orders = it->second;
+    if (cancel) {
         // cancel previous bombard orders for this planet
-        for (int order_id : planet_bombard_orders)
-        { HumanClientApp::GetApp()->Orders().RescindOrder(order_id); }
+        std::map<int, std::set<int> > pending_bombard_orders = PendingBombardOrders();
+        std::map<int, std::set<int> >::const_iterator it = pending_bombard_orders.find(m_planet_id);
+
+        if (it != pending_bombard_orders.end()) {
+            const std::set<int>& planet_bombard_orders = it->second;
+            for (int order_id : planet_bombard_orders)
+            { HumanClientApp::GetApp()->Orders().RescindOrder(order_id); }
+        } else {
+            WarnLogger() << "No valid bombard order to cancel";
+        }
+
+        m_order_tooltips.at(ORDER_BOMBARD)->GetTitleTextLabel()->SetText(
+            UserString(ORDER_BOMBARD));
 
     } else {
         // order selected bombard ships to bombard planet
@@ -2369,7 +2598,10 @@ void SidePanel::PlanetPanel::ClickBombard() {
             HumanClientApp::GetApp()->Orders().IssueOrder(OrderPtr(
                 new BombardOrder(empire_id, ship->ID(), m_planet_id)));
         }
+        m_order_tooltips.at(ORDER_BOMBARD)->GetTitleTextLabel()->SetText(
+            UserString(ORDER_BOMBARD_CANCEL));
     }
+    OrderButtonChangedSignal(ORDER_BOMBARD, cancel);
 }
 
 void SidePanel::PlanetPanel::FocusDropListOpened(bool is_open) {
@@ -2411,9 +2643,8 @@ void SidePanel::PlanetPanel::FocusDropListSelectionChangedSlot(GG::DropDownList:
 void SidePanel::PlanetPanel::EnableOrderIssuing(bool enable/* = true*/) {
     m_order_issuing_enabled = enable;
 
-    m_colonize_button->Disable(!enable);
-    m_invade_button->Disable(!enable);
-    m_bombard_button->Disable(!enable);
+    for (auto& button : m_order_buttons)
+        button.second->Disable(!enable);
 
     m_buildings_panel->EnableOrderIssuing(enable);
 
@@ -2535,6 +2766,11 @@ void SidePanel::PlanetPanelContainer::SetPlanets(const std::vector<int>& planet_
         GG::Connect(m_planet_panels.back()->RightClickedSignal,         PlanetRightClickedSignal);
         GG::Connect(m_planet_panels.back()->BuildingRightClickedSignal, BuildingRightClickedSignal);
         GG::Connect(m_planet_panels.back()->ResizedSignal,              &SidePanel::PlanetPanelContainer::RequirePreRender,       this);
+        m_planet_panels.back()->OrderButtonChangedSignal.connect(
+            [this](const std::string& order, bool cancel) {
+                for (auto& panel : m_planet_panels)
+                    panel->Refresh();
+            });
     }
 
     // disable non-selectable planet panels

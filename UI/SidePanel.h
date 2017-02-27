@@ -170,6 +170,7 @@ private:
 
 std::shared_ptr<const Ship> ValidSelectedColonyShip(int system_id);
 
-int                         AutomaticallyChosenColonyShip(int target_planet_id);
+int AutomaticallyChosenColonyShip(int target_planet_id,
+                                  bool include_ordered = false);
 
 #endif // _SidePanel_h_
