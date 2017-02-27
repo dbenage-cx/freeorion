@@ -49,3 +49,9 @@ void TextBrowseWnd::Render() {
     GG::FlatRectangle(ul + m_offset, lr + m_offset, ClientUI::WndColor(), ClientUI::WndOuterBorderColor(), 1);    // main background
     GG::FlatRectangle(ul + m_offset, GG::Pt(lr.x, ul.y + ROW_HEIGHT) + m_offset, ClientUI::WndOuterBorderColor(), ClientUI::WndOuterBorderColor(), 0);    // top title filled background
 }
+
+GG::Label* TextBrowseWnd::GetTitleTextLabel()
+{ return m_title_text; }
+
+GG::Label* TextBrowseWnd::GetMainTextLabel()
+{ return m_main_text; }

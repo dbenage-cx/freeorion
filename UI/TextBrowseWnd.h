@@ -15,6 +15,10 @@ public:
 
     void Render() override;
 
+    GG::Label* GetTitleTextLabel();
+
+    GG::Label* GetMainTextLabel();
+
 private:
     GG::Label*          m_title_text;
     GG::Label*          m_main_text;
