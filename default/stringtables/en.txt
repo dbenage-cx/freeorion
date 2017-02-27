@@ -2784,10 +2784,8 @@ Planet Panel
 PL_ASTEROID_BELT_OF_SYSTEM
 %1% Asteroids
 
-# %1% size of the population this planet is colonized with.
-# %2% maximum population this planet can support.
 PL_COLONIZE
-Colonize (%1% / %2%)
+Colonize
 
 PL_CANCEL_COLONIZE
 Cancel Colonization
@@ -2795,9 +2793,8 @@ Cancel Colonization
 PL_OUTPOST
 Place Outpost
 
-# %1% number of ground troops that will be deployed on the planet.
 PL_INVADE
-Invade (+%1%)
+Invade
 
 PL_CANCEL_INVADE
 Cancel Invasion
