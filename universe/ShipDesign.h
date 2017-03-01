@@ -456,6 +456,7 @@ public:
     float                           Detection() const       { return m_detection; }             ///< returns the detection ability of this design
     float                           ColonyCapacity() const  { return m_colony_capacity; }       ///< returns the colonization capacity of this design
     float                           TroopCapacity() const   { return m_troop_capacity; }        ///< returns the troop capacity of this design
+    float                           BombardCapacity() const { return m_bombard_capacity; }      ///< returns the bombard capacity of this design, ignoring metabolism restrictions
     float                           Stealth() const         { return m_stealth; }               ///< returns the stealth of this design
 
     float                           IndustryGeneration() const  { return m_industry_generation; }   ///< returns the industry output from this ship design
@@ -465,7 +466,7 @@ public:
 
     bool                            CanColonize() const;
     bool                            HasTroops() const       { return (m_troop_capacity > 0.0f); }
-    bool                            CanBombard() const      { return m_can_bombard; }
+    bool                            CanBombard() const      { return (m_bombard_capacity > 0.0f); }
     bool                            IsArmed() const         { return m_is_armed; }
     bool                            HasFighters() const     { return m_has_fighters; }
     bool                            IsMonster() const       { return m_is_monster; }
@@ -541,7 +542,7 @@ private:
     // not necessary to serialize them.
     bool    m_is_armed;
     bool    m_has_fighters;
-    bool    m_can_bombard;
+    float   m_bombard_capacity;
     float   m_detection;
     float   m_colony_capacity;
     float   m_troop_capacity;

@@ -247,6 +247,9 @@ void PartType::Init(const std::vector<std::shared_ptr<Effect::EffectsGroup>>& ef
         case PC_RESEARCH:
             m_effects.push_back(IncreaseMeter(METER_TARGET_RESEARCH,m_capacity));
             break;
+        case PC_BOMBARD:
+            m_effects.push_back(IncreaseMeter(METER_CAPACITY, m_name, m_capacity, false));
+            break;
         case PC_INDUSTRY:
             m_effects.push_back(IncreaseMeter(METER_TARGET_INDUSTRY,m_capacity));
             break;
@@ -537,7 +540,7 @@ ShipDesign::ShipDesign() :
     m_name_desc_in_stringtable(false),
     m_is_armed(false),
     m_has_fighters(false),
-    m_can_bombard(false),
+    m_bombard_capacity(0.0f),
     m_detection(0.0),
     m_colony_capacity(0.0),
     m_troop_capacity(0.0),
@@ -571,7 +574,7 @@ ShipDesign::ShipDesign(const std::string& name, const std::string& description,
     m_name_desc_in_stringtable(name_desc_in_stringtable),
     m_is_armed(false),
     m_has_fighters(false),
-    m_can_bombard(false),
+    m_bombard_capacity(0.0f),
     m_detection(0.0),
     m_colony_capacity(0.0),
     m_troop_capacity(0.0),
@@ -976,7 +979,7 @@ void ShipDesign::BuildStatCaches() {
             m_detection += part->Capacity();
             break;
         case PC_BOMBARD:
-            m_can_bombard = true;
+            m_bombard_capacity += part->Capacity();
             break;
         case PC_RESEARCH:
             m_research_generation += part->Capacity();

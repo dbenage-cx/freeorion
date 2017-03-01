@@ -96,6 +96,9 @@ Ship::Ship(int empire_id, int design_id, const std::string& species_name,
                 m_part_meters[std::make_pair(METER_MAX_CAPACITY,        part->Name())];
                 break;
             }
+            case PC_BOMBARD: {
+                m_part_meters[std::make_pair(METER_CAPACITY, part->Name())];
+            }
             default:
                 break;
             }
@@ -329,6 +332,32 @@ float Ship::TroopCapacity() const {
         if (part_class != PC_TROOPS)
             continue;
         // add capacity for all instances of colony parts to accumulator
+        retval += this->CurrentPartMeterValue(METER_CAPACITY, part_name);
+    }
+
+    return retval;
+}
+
+float Ship::BombardCapacity() const {
+    float retval = 0.0;
+    const ShipDesign* design = Design();
+    if (!design)
+        return retval;
+
+    for (const std::string& part_name : design->Parts()) {
+        if (part_name.empty())
+            continue;
+
+        const PartType* part_type = GetPartType(part_name);
+        if (!part_type) {
+            WarnLogger() << "PartType not found for part name: " << part_name;
+            continue;
+        }
+
+        ShipPartClass part_class = part_type->Class();
+        if (part_class != PC_BOMBARD)
+            continue;
+
         retval += this->CurrentPartMeterValue(METER_CAPACITY, part_name);
     }
 
