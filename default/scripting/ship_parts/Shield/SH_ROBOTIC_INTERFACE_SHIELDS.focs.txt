@@ -1,6 +1,7 @@
 Part
     name = "SH_ROBOTIC_INTERFACE_SHIELDS"
     description = "SH_ROBOTIC_INTERFACE_SHIELDS_DESC"
+    exclusions = [ "SH_DEFENSE_GRID" "SH_DEFLECTOR" "SH_PLASMA" "SH_MULTISPEC" "SH_BLACK" "SH_ROBOTIC_INTERFACE_SHIELDS" ]
     class = Shield
     capacity = 20
     NoDefaultCapacityEffect
