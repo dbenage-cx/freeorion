@@ -1,7 +1,7 @@
 Part
     name = "SH_ROBOTIC_INTERFACE_SHIELDS"
     description = "SH_ROBOTIC_INTERFACE_SHIELDS_DESC"
-    exclusions = [ "SH_DEFENSE_GRID" "SH_DEFLECTOR" "SH_PLASMA" "SH_MULTISPEC" "SH_BLACK" "SH_ROBOTIC_INTERFACE_SHIELDS" ]
+    exclusions = [[ALL_SHIELDS]]
     class = Shield
     capacity = 20
     NoDefaultCapacityEffect
@@ -17,6 +17,8 @@ Part
         [[EG_ROBOTIC_INTERFACE_SHIELD]]
     ]
     icon = "icons/ship_parts/robotic-interface-shields.png"
+
+#include "shield.macros"
 
 #include "../robotic_interface.macros"
 
