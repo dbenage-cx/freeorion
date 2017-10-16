@@ -14,7 +14,7 @@ Part
         HasTag name = "ROBOTIC"
     ]
     effectsgroups = [
-        [[EG_ROBOTIC_INTERFACE_SHIELD]]
+        [[EG_ROBOTIC_INTERFACE_MODULE(SetMaxShield,PartCapacity name = "SH_ROBOTIC_INTERFACE_SHIELDS")]]
     ]
     icon = "icons/ship_parts/robotic-interface-shields.png"
 

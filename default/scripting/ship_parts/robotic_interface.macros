@@ -11,24 +11,27 @@ Statistic Count condition = And [
     ]
 '''
 
+// @1@ Max value
 RI_SHIELD_VALUE
 '''
 min(min(
         [[COUNT_ROBOTIC_INTERFACES]],
         (([[COUNT_ROBOTIC_INTERFACES]] * 7) ^ 0.5 )),
-    PartCapacity name = "SH_ROBOTIC_INTERFACE_SHIELDS")
+    @1@)
 '''
 
-EG_ROBOTIC_INTERFACE_SHIELD
+// @1@ Effect keyword (e.g. SetMaxShield)
+// @2@ Max value
+EG_ROBOTIC_INTERFACE_MODULE
 '''
 EffectsGroup
     scope = And [
         Source
         HasTag name = "ROBOTIC"
-        HasTag name = "ROBOTIC_HULL"
+        HasTag name = "ROBOTIC_INTERFACE"
     ]
     stackinggroup = "SHIELD_PART_STACK"
     accountinglabel = "ROBOTIC_INTERFACE_EFFECT"
     priority = 32
-    effects = SetMaxShield value = Value + [[RI_SHIELD_VALUE]]
+    effects = @1@ value = Value + [[RI_SHIELD_VALUE(@2@)]]
 '''
