@@ -1,3 +1,4 @@
+add_subdirectory(VFS)
 target_sources(freeorioncommon
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/AppInterface.h
@@ -21,6 +22,7 @@ target_sources(freeorioncommon
         ${CMAKE_CURRENT_LIST_DIR}/ScopedTimer.h
         ${CMAKE_CURRENT_LIST_DIR}/Serialize.h
         ${CMAKE_CURRENT_LIST_DIR}/Serialize.ipp
+        ${CMAKE_CURRENT_LIST_DIR}/SemVer.hpp
         ${CMAKE_CURRENT_LIST_DIR}/SitRepEntry.h
         ${CMAKE_CURRENT_LIST_DIR}/StringTable.h
         ${CMAKE_CURRENT_LIST_DIR}/VarText.h

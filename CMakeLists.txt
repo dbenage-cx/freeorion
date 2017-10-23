@@ -164,6 +164,7 @@ find_package(Boost ${MINIMUM_BOOST_VERSION}
         python
         signals
         system
+        timer
         thread
     REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -306,6 +307,7 @@ target_link_libraries(freeorioncommon
     ${Boost_SIGNALS_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
+    ${Boost_TIMER_LIBRARY}
     ${ZLIB_LIBRARIES}
     ${CORE_FOUNDATION_LIBRARY}
 )
@@ -617,6 +619,7 @@ if(WIN32)
         boost_signals-vc90-mt-1_44.dll
         boost_system-vc90-mt-1_44.dll
         boost_thread-vc90-mt-1_44.dll
+        boost_timer-vc90-mt-1_44.dll
         glew32.dll
         libexpat.dll
         libogg.dll

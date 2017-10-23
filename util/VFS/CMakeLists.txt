@@ -1,0 +1,10 @@
+target_sources(freeorioncommon
+    PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/Common.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/Content.h
+        ${CMAKE_CURRENT_LIST_DIR}/Node.h
+    PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/Content.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/ContentDir.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/Node.cpp
+)

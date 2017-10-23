@@ -1,0 +1,8 @@
+ContentDir
+    name = "DEFAULT_RESOURCE_DIR"
+    description = "DEFAULT_RESOURCE_DIR_DESC"
+    version = "0.4.7"
+    explicit = [
+        "COPYING"
+        "credits.xml"
+    ]
