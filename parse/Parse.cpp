@@ -9,6 +9,7 @@
 #include "../universe/Effect.h"
 #include "../util/Logger.h"
 #include "../util/Directories.h"
+#include "../util/VFS/Node.h"
 
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/algorithm/string/replace.hpp>

@@ -29,6 +29,12 @@ struct EncyclopediaArticle;
 class GameRules;
 struct ItemSpec;
 
+namespace VFS {
+    namespace Content {
+        class Dir;
+    }
+}
+
 namespace parse {
     FO_PARSE_API std::map<std::string, std::unique_ptr<BuildingType>> buildings(const boost::filesystem::path& path);
 
@@ -83,6 +89,8 @@ namespace parse {
     FO_PARSE_API void process_include_substitutions(std::string& text, 
                                                     const boost::filesystem::path& file_search_path, 
                                                     std::set<boost::filesystem::path>& files_included);
+
+    FO_PARSE_API std::unique_ptr<VFS::Content::Dir> content_dir(const boost::filesystem::path definition_path);
 }
 
 #endif

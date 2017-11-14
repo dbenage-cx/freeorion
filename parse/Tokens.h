@@ -61,6 +61,7 @@
     (Consumption)                               \
     (ContainedBy)                               \
     (Contains)                                  \
+    (ContentDefinition)                         \
     (Core)                                      \
     (Cos)                                       \
     (Count)                                     \
@@ -124,6 +125,7 @@
     (FighterBay)                                \
     (FighterHangar)                             \
     (FighterWeapon)                             \
+    (File)                                      \
     (FinalDestinationID)                        \
     (Fleet)                                     \
     (FleetID)                                   \
@@ -528,6 +530,7 @@
     (UserString)                                \
     (UUID)                                      \
     (Value)                                     \
+    (Version)                                   \
     (Victory)                                   \
     (VisibleToEmpire)                           \
     (Visibility)                                \

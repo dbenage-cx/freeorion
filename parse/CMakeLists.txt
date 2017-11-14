@@ -12,6 +12,7 @@ target_sources(freeorionparseobj
         ${CMAKE_CURRENT_LIST_DIR}/ConditionParser6.h
         ${CMAKE_CURRENT_LIST_DIR}/ConditionParser7.h
         ${CMAKE_CURRENT_LIST_DIR}/ConditionParserImpl.h
+        ${CMAKE_CURRENT_LIST_DIR}/ContentDirParser.cpp
         ${CMAKE_CURRENT_LIST_DIR}/EffectParser.h
         ${CMAKE_CURRENT_LIST_DIR}/EffectParser1.h
         ${CMAKE_CURRENT_LIST_DIR}/EffectParser2.h
