@@ -24,6 +24,17 @@ matrix:
     - env:
       - BUILD_APIDOC=true
       - secure: "JKeXk8p65hodb12PVRST6A90swsNubc+46EbSJGSghldIxbFWLBAlwU+KLeOMO4V0veu6k4lnMa50V0UYFZmoUsS6W0aL5Ybo98SpzXHiNLOmOluoqJoF9TBsOTCCRFbWbccgJyVEtulgRcdml96naS51lq9Sw/VO/N3Z472304="
+before_install:
+- |
+  # workaround for https://github.com/travis-ci/travis-ci/issues/6301
+  if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+    TRAVIS_COMMIT_RANGE="FETCH_HEAD...$TRAVIS_BRANCH"
+  fi
+  # skip build if there are no files changed, excluding files with .md extension and those contained in default dir
+  git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qvE '(\.md$)|(^(default))/' || {
+    echo "No source file changes detected, skipped build"
+    travis_terminate 0
+  }
 install:
   - >
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
