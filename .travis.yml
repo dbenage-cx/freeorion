@@ -91,7 +91,7 @@ before_cache:
   - ccache --show-stats
 script:
   - >
-    if [[ "${BUILD_APIDOC}" == "true" && "${TRAVIS_BRANCH}" == "master" ]]; then
+    if [[ "${BUILD_APIDOC}" == "true" && "${TRAVIS_PULL_REQUEST_BRANCH}" == "" && "${TRAVIS_BRANCH}" == "master" ]]; then
       cmake ..
       cmake --build . --target cpp-apidoc
 
