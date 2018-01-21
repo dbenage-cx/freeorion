@@ -33,4 +33,68 @@ AVERAGE_HAPPINESS
                     SetHappiness value = 0
                     SetTargetHappiness value = 0
                     ]
+
+[[AVERAGE_HAPPINESS_PRODUCTIVITY]]
 '''
+
+AVERAGE_HAPPINESS_PRODUCTIVITY
+'''
+        EffectsGroup
+            scope = Source
+            activation = And [
+                Planet
+                Happiness low = [[VERY_HIGH_HAPPINESS]]
+            ]
+            stackinggroup = "HAPPINESS_PRODUCTIVITY"
+            accountinglabel = "VERY_HIGH_HAPPINESS_PRODUCTIVITY_LABEL"
+            priority = [[HAPPINESS_PRODUCTIVITY_PRIORITY]]
+            effects = [
+                SetTargetIndustry value = Value * 1.1
+                SetTargetResearch value = Value * 1.1
+            ]
+
+        EffectsGroup
+            scope = Source
+            activation = And [
+                Planet
+                Happiness low = [[HIGH_HAPPINESS]]
+            ]
+            stackinggroup = "HAPPINESS_PRODUCTIVITY"
+            accountinglabel = "HIGH_HAPPINESS_PRODUCTIVITY_LABEL"
+            priority = [[HAPPINESS_PRODUCTIVITY_PRIORITY]]
+            effects = [
+                SetTargetIndustry value = Value * 1.05
+                SetTargetResearch value = Value * 1.05
+            ]
+
+        EffectsGroup
+            scope = Source
+            activation = And [
+                Planet
+                Happiness low = [[LOW_HAPPINESS]] high = [[CONTENT_HAPPINESS]] - 1
+            ]
+            stackinggroup = "HAPPINESS_PRODUCTIVITY"
+            accountinglabel = "LOW_HAPPINESS_PRODUCTIVITY_LABEL"
+            priority = [[HAPPINESS_PRODUCTIVITY_PRIORITY]]
+            effects = [
+                SetTargetIndustry value = Value * 0.8
+                SetTargetResearch value = Value * 0.8
+            ]
+
+        EffectsGroup
+            scope = Source
+            activation = And [
+                Planet
+                Happiness high = [[LOW_HAPPINESS]] - 1
+            ]
+            stackinggroup = "HAPPINESS_PRODUCTIVITY"
+            accountinglabel = "BAD_HAPPINESS_PRODUCTIVITY_LABEL"
+            priority = [[HAPPINESS_PRODUCTIVITY_PRIORITY]]
+            effects = [
+                SetTargetIndustry value = Value * 0.6
+                SetTargetResearch value = Value * 0.6
+            ]
+'''
+
+#include "/scripting/common/happiness.macros"
+#include "/scripting/common/priorities.macros"
