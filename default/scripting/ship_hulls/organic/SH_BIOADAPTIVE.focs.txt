@@ -44,7 +44,7 @@ Hull
             activation = Source
             effects = SetDetection value = Value + 75
 
-        [[ORGANIC_GROWTH(0.5, 25)]]
+        [[ORGANIC_GROWTH(1.5, 45)]]
 
         [[LIVING_HULL_BASE_FUEL_REGEN]]
         [[SCAVANGE_FUEL_UNOWNED]]

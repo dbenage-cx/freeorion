@@ -4,7 +4,7 @@ Hull
     speed = 100
     fuel = 2
     stealth = 25
-    structure = 12
+    structure = 30
     slots = [
         Slot type = External position = (0.40, 0.40)
         Slot type = External position = (0.50, 0.40)
@@ -52,11 +52,11 @@ Hull
             activation = Source
             stackinggroup = "FLAGSHIP_EFFECT_SENTIENT"
             effects = [
-                SetStealth value = Value + 20
-                SetDetection value = Value + 50
+                SetStealth value = Value + min(Source.Age * 1, 20)
+                SetDetection value = Value + min(Source.Age * 2.5, 50)
             ]
 
-        [[ORGANIC_GROWTH(1, 45)]]
+        [[ORGANIC_GROWTH(2, 50)]]
 
         [[LIVING_HULL_EFFECTS_GROUPS]]
         [[SCAVANGE_FUEL_UNOWNED]]

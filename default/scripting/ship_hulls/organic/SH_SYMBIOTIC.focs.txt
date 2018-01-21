@@ -30,7 +30,7 @@ Hull
         OwnedBy empire = Source.Owner
     ]
     effectsgroups = [
-        [[ORGANIC_GROWTH(0.2, 10)]]
+        [[ORGANIC_GROWTH(1, 25)]]
 
         [[LIVING_HULL_EFFECTS_GROUPS]]
         [[SCAVANGE_FUEL_UNOWNED]]

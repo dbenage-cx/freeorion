@@ -761,17 +761,17 @@ HULL_EFFECTS = {
         REPAIR_PER_TURN: 2,
         FUEL_PER_TURN: 0.2,
         DETECTION: 10,
-        ORGANIC_GROWTH: (0.2, 5),
+        ORGANIC_GROWTH: (0.2, 25),
     },
     "SH_ENDOMORPHIC": {
         DETECTION: 50,
-        ORGANIC_GROWTH: (0.5, 15),
+        ORGANIC_GROWTH: (1, 50),
     },
     "SH_SYMBIOTIC": {
         REPAIR_PER_TURN: 2,
         FUEL_PER_TURN: 0.2,
         DETECTION: 50,
-        ORGANIC_GROWTH: (0.2, 10),
+        ORGANIC_GROWTH: (1, 25),
     },
     "SH_PROTOPLASMIC": {
         REPAIR_PER_TURN: 2,
@@ -783,23 +783,23 @@ HULL_EFFECTS = {
         REPAIR_PER_TURN: 2,
         FUEL_PER_TURN: 0.2,
         DETECTION: 50,
-        ORGANIC_GROWTH: (0.5, 15),
+        ORGANIC_GROWTH: (2, 40),
     },
     "SH_RAVENOUS": {
         DETECTION: 75,
-        ORGANIC_GROWTH: (0.5, 20),
+        ORGANIC_GROWTH: (2, 60),
     },
     "SH_BIOADAPTIVE": {
         REPAIR_PER_TURN: (STRUCTURE, 1),
         FUEL_PER_TURN: 0.2,
         DETECTION: 75,
-        ORGANIC_GROWTH: (0.5, 25),
+        ORGANIC_GROWTH: (1.5, 45),
     },
     "SH_SENTIENT": {
         REPAIR_PER_TURN: 2,
         FUEL_PER_TURN: 0.2,
         DETECTION: 70,
-        ORGANIC_GROWTH: (1, 45),
+        ORGANIC_GROWTH: (2, 55),
         STEALTH_MODIFIER: 20,
     },
     # Energy Line

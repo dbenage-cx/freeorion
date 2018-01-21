@@ -4,7 +4,7 @@ Hull
     speed = 100
     fuel = 2
     stealth = 5
-    structure = 16
+    structure = 20
     slots = [
         Slot type = External position = (0.35, 0.35)
         Slot type = External position = (0.50, 0.35)

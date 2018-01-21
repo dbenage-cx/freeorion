@@ -4,7 +4,7 @@ Hull
     speed = 100
     fuel = 2
     stealth = 5
-    structure = 5
+    structure = 30
     slots = [
         Slot type = External position = (0.40, 0.25)
         Slot type = External position = (0.60, 0.35)
@@ -37,7 +37,7 @@ Hull
             activation = Source
             effects = SetDetection value = Value + 50
 
-        [[ORGANIC_GROWTH(0.5, 15)]]
+        [[ORGANIC_GROWTH(1, 50)]]
 
         [[AVERAGE_BASE_FUEL_REGEN]]
         [[SCAVANGE_FUEL_UNOWNED]]
