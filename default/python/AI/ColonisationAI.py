@@ -439,19 +439,7 @@ def get_colony_fleets():
                 print "Potential outpost base (rejected) for %s to be built at planet id(%d); outpost score %.1f" % (
                     ((planet and planet.name) or "unknown"), loc, this_score)
                 continue
-            best_ship, col_design, build_choices = ProductionAI.get_best_ship_info(
-                PriorityType.PRODUCTION_ORBITAL_OUTPOST, loc)
-            if best_ship is None:
-                warn("Can't get standard best outpost base design that can be built at %s" % (
-                    PlanetUtilsAI.planet_string(loc)))
-                outpost_base_design_ids = [design for design in empire.availableShipDesigns if
-                                           "SD_OUTPOST_BASE" == fo.getShipDesign(design).name]
-                if outpost_base_design_ids:
-                    print "trying fallback outpost base design SD_OUTPOST_BASE"
-                    best_ship = outpost_base_design_ids.pop()
-                else:
-                    continue
-            retval = fo.issueEnqueueShipProductionOrder(best_ship, loc)
+            retval = fo.issueEnqueueBuildingProductionOrder("BLD_OUTPOST_BASE", loc)
             print "Enqueueing Outpost Base at %s for %s with result %s" % (
                 PlanetUtilsAI.planet_string(loc), PlanetUtilsAI.planet_string(pid), retval)
             if retval:
@@ -614,8 +602,8 @@ def get_defense_value(species_name):
     """
     :param species_name:
     :type species_name: str
-    :return: planet defenses contribution towards planet evaluations
-    :rtype: float
+    :return:planet defenses contribution towards planet evaluations
+    :rtype float
     """
     # TODO: assess species defense characteristics
     if species_name:
