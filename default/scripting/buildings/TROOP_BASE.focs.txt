@@ -1,0 +1,40 @@
+BuildingType
+    name = "BLD_TROOP_BASE"
+    description = "BLD_TROOP_BASE_DESC"
+    buildcost = 5 * [[FLEET_UPKEEP_MULTIPLICATOR]] * [[BUILDING_COST_MULTIPLIER]]
+    buildtime = 2
+    location = And [
+        Planet
+        Troops low = PartCapacity name = "GT_TROOP_POD"
+        OwnedBy empire = Source.Owner
+        ContainedBy Contains And [
+            Planet
+            And [
+                Not OwnedBy empire = Source.Owner
+                Population low = 0.001
+            ]
+        ]
+    ]
+    effectsgroups = [
+        EffectsGroup
+            scope = Source
+            activation = Troops low = PartCapacity name = "GT_TROOP_POD"
+            stackinggroup = "COLONY_BASE_STACKING"
+            effects = If
+                condition = And [
+                    OwnerHasTech name = "GRO_NANO_CYBERNET"
+                    Troops low = PartCapacity name = "GT_TROOP_POD_2"
+                ]
+                effects = CreateShip designname = "SD_TROOP_DROP_HVY" empire = Source.Owner species = Source.Planet.Species
+                else = CreateShip designname = "SD_TROOP_DROP" empire = Source.Owner species = Source.Planet.Species
+
+        EffectsGroup
+            scope = Source
+            activation = Source
+            effects = Destroy
+    ]
+    icon = "icons/ship_hulls/colony_base_hull_small.png"
+
+#include "/scripting/common/misc.macros"
+#include "/scripting/common/upkeep.macros"
+#include "/scripting/common/base_prod.macros"
