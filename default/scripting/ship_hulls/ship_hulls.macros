@@ -164,4 +164,12 @@ AVERAGE_BASE_FUEL_REGEN
    [[REFUEL_MESSAGE(0.1001)]]
 '''
 
+// @1@ repair amount
+HULL_REPAIR
+'''EffectsGroup
+    scope = Source
+    activation = Turn low = Source.LastTurnActiveInBattle + 1
+    effects = SetStructure value = Value + @1@
+'''
+
 #include "/scripting/common/priorities.macros"

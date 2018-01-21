@@ -3,10 +3,9 @@ LIVING_HULL_EFFECTS_GROUPS
 '''EffectsGroup
     scope = Source
     activation = Source
-    effects = [
-        SetStructure value = Value + 2
-        SetDetection value = Value + 50
-    ]
+    effects = SetDetection value = Value + 50
+
+[[HULL_REPAIR(2)]]
 
 [[LIVING_HULL_BASE_FUEL_REGEN]]
 '''
@@ -38,4 +37,5 @@ ORGANIC_GROWTH
     effects = SetMaxStructure value = Value + min(Source.Age * @1@, @2@)
 '''
 
+#include "../ship_hulls.macros"
 #include "/scripting/common/priorities.macros"
