@@ -12266,10 +12266,28 @@ BLD_XENORESURRECTION_LAB_DESC
 The Xenoresurrection Lab restores living samples of extinct species, allowing colonization of [[metertype METER_SUPPLY]] connected planets with the extinct species found in [[special ANCIENT_RUINS_SPECIAL]]. It can only be build on planets where the excavations of [[special ANCIENT_RUINS_SPECIAL]] have found well preserved bodies of an extinct species.
 
 BLD_COLONY_BASE
-Colony Base
+Interplanetary Colony
 
 BLD_COLONY_BASE_DESC
-Creates a [[predefinedshipdesign SD_COLONY_BASE]] ship which can be used to colonize another planet in the same system. [[MIN_POPULATION_THREE_REQUIRED]].
+'''Creates a [[predefinedshipdesign SD_COLONY_BASE]] ship which can be used to colonize another planet in the same system. [[MIN_POPULATION_THREE_REQUIRED]].
+
+If the tech [[tech GRO_LIFECYCLE_MAN]] is known, a [[predefinedshipdesign SD_CRYONIC_COLONY_BASE]] is produced instead.'''
+
+BLD_OUTPOST_BASE
+Interplanetary Outpost
+
+BLD_OUTPOST_BASE_DESC
+Creates a [[predefinedshipdesign SD_OUTPOST_BASE]] ship which can be used to acquire ownership of another planet in the same system.
+
+BLD_TROOP_BASE
+Interplanetary Troops
+
+BLD_TROOP_BASE_DESC
+'''Creates a [[predefinedshipdesign SD_TROOP_DROP]] ship which can be used to invade a hostile planet in the same system.
+
+Requires the planet to contain at least the number of troops used in the selected design.
+
+If the tech [[tech GRO_NANO_CYBERNET]] is known and enough troops are available, a [[predefinedshipdesign SD_TROOP_DROP_HVY]] is produced instead.'''
 
 BLD_EXPERIMENTOR_OUTPOST
 Experimentor Outpost
@@ -13546,10 +13564,10 @@ SH_XENTRONIUM_DESC
 [[metertype METER_STEALTH]] is medium and [[metertype METER_DETECTION]] is medium.'''
 
 SH_COLONY_BASE
-Colony Base Hull
+Interplanetary Hull
 
 SH_COLONY_BASE_DESC
-'''A hull designed to create a colony on another planet in system. It cannot move between systems or move quickly in-system and consequently has only one internal slot.
+'''A hull designed for transport to another planet in system. It cannot move between systems or move quickly in-system and consequently has only one internal slot.
 
 [[metertype METER_STEALTH]] is medium and [[metertype METER_DETECTION]] is medium.'''
 

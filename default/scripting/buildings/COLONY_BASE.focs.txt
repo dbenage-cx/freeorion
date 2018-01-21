@@ -1,20 +1,42 @@
 BuildingType
     name = "BLD_COLONY_BASE"
     description = "BLD_COLONY_BASE_DESC"
-    buildcost = 45 * [[BUILDING_COST_MULTIPLIER]]
+    buildcost = 120 * [[COLONY_UPKEEP_MULTIPLICATOR]] * [[BUILDING_COST_MULTIPLIER]]
     buildtime = 1
     location = And [
         Planet
-        Not Contains Building name = "BLD_COLONY_BASE"
         Population low = [[MIN_RECOLONIZING_SIZE]]
         OwnedBy empire = Source.Owner
+        ContainedBy Contains And [
+            Planet
+            Not Planet environment = Uninhabitable
+            And [
+                Population high = 0
+                Or [
+                    Unowned
+                    OwnedBy empire = Source.Owner
+                ]
+            ]
+        ]
     ]
-    /* TODO: Disable colony base if there is no possibility in the current system */
     effectsgroups = [
         EffectsGroup
             scope = Source
-            activation = Source
+            activation = And [
+                CanColonize
+                Not OwnerHasTech name = "GRO_LIFECYCLE_MAN"
+            ]
+            stackinggroup = "COLONY_BASE_STACKING"
             effects = CreateShip designname = "SD_COLONY_BASE" empire = Source.Owner species = Source.Planet.Species
+
+        EffectsGroup
+            scope = Source
+            activation = And [
+                CanColonize
+                OwnerHasTech name = "GRO_LIFECYCLE_MAN"
+            ]
+            stackinggroup = "COLONY_BASE_STACKING"
+            effects = CreateShip designname = "SD_CRYONIC_COLONY_BASE" empire = Source.Owner species = Source.Planet.Species
 
         EffectsGroup
             scope = Source
@@ -24,4 +46,5 @@ BuildingType
     icon = "icons/ship_hulls/colony_base_hull_small.png"
 
 #include "/scripting/common/misc.macros"
+#include "/scripting/common/upkeep.macros"
 #include "/scripting/common/base_prod.macros"
