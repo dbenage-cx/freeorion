@@ -14479,6 +14479,21 @@ Flux Interference
 SPATIAL_FLUX_BONUS
 Flux Drive Bonus
 
+EXOBOT_HAPPINESS_LABEL
+Always Content
+
+VERY_HIGH_HAPPINESS_PRODUCTIVITY_LABEL
+Estatic Population Efficiency
+
+HIGH_HAPPINESS_PRODUCTIVITY_LABEL
+Happy Population Efficiency
+
+LOW_HAPPINESS_PRODUCTIVITY_LABEL
+Discontent Population Efficiency
+
+BAD_HAPPINESS_PRODUCTIVITY_LABEL
+Unhappy Population Efficiency
+
 
 ##
 ## Tags
