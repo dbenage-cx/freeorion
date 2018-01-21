@@ -1,0 +1,33 @@
+BuildingType
+    name = "BLD_OUTPOST_BASE"
+    description = "BLD_OUTPOST_BASE_DESC"
+    buildcost = 50 * [[COLONY_UPKEEP_MULTIPLICATOR]] * [[BUILDING_COST_MULTIPLIER]]
+    buildtime = 2
+    location = And [
+        Planet
+        OwnedBy empire = Source.Owner
+        Population low = 0.001
+        ContainedBy Contains And [
+            Planet
+            And [
+                Population high = 0
+                Unowned
+            ]
+        ]
+    ]
+    effectsgroups = [
+        EffectsGroup
+            scope = Source
+            activation = CanColonize
+            effects = CreateShip designname = "SD_OUTPOST_BASE" empire = Source.Owner species = Source.Planet.Species
+
+        EffectsGroup
+            scope = Source
+            activation = Source
+            effects = Destroy
+    ]
+    icon = "icons/ship_hulls/colony_base_hull_small.png"
+
+#include "/scripting/common/misc.macros"
+#include "/scripting/common/upkeep.macros"
+#include "/scripting/common/base_prod.macros"
