@@ -8,7 +8,7 @@ LIVING_HULL_EFFECTS_GROUPS
         SetDetection value = Value + 50
     ]
 
-    [[LIVING_HULL_BASE_FUEL_REGEN]]
+[[LIVING_HULL_BASE_FUEL_REGEN]]
 '''
 
 LIVING_HULL_BASE_FUEL_REGEN
@@ -26,6 +26,16 @@ LIVING_HULL_BASE_FUEL_REGEN
     effects = SetFuel value = min(Target.MaxFuel, Value + 0.3001)
 
    [[REFUEL_MESSAGE(0.3001)]]
+'''
+
+// @1@ Structure increase per turn
+// @2@ Max structure increase
+ORGANIC_GROWTH
+'''EffectsGroup
+    scope = Source
+    activation = Source
+    accountinglabel = "ORGANIC_GROWTH"
+    effects = SetMaxStructure value = Value + min(Source.Age * @1@, @2@)
 '''
 
 #include "/scripting/common/priorities.macros"

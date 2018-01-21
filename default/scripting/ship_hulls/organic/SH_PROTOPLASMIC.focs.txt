@@ -31,11 +31,7 @@ Hull
         OwnedBy empire = Source.Owner
     ]
     effectsgroups = [
-        EffectsGroup
-            scope = Source
-            activation = Source
-            accountinglabel = "ORGANIC_GROWTH"
-            effects = SetMaxStructure value = Value + min(Source.Age*0.5, 25)
+        [[ORGANIC_GROWTH(0.5, 25)]]
 
         [[LIVING_HULL_EFFECTS_GROUPS]]
         [[SCAVANGE_FUEL_UNOWNED]]

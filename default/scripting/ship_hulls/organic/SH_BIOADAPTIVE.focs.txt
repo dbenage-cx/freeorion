@@ -44,11 +44,7 @@ Hull
             activation = Source
             effects = SetDetection value = Value + 75
 
-        EffectsGroup
-            scope = Source
-            activation = Source
-            accountinglabel = "ORGANIC_GROWTH"
-            effects = SetMaxStructure value = Value + min(Source.Age*0.5, 25)
+        [[ORGANIC_GROWTH(0.5, 25)]]
 
         [[LIVING_HULL_BASE_FUEL_REGEN]]
         [[SCAVANGE_FUEL_UNOWNED]]
