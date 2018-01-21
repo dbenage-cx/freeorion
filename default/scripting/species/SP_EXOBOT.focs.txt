@@ -2,7 +2,6 @@ Species
     name = "SP_EXOBOT"
     description = "SP_EXOBOT_DESC"
     gameplay_description = "SP_EXOBOT_GAMEPLAY_DESC"
-    CanProduceShips
     CanColonize
 
     Tags = [ "ROBOTIC" "BAD_RESEARCH" "BAD_WEAPONS" "AVERAGE_SUPPLY" "CTRL_ALWAYS_REPORT" "BAD_ATTACKTROOPS" "PEDIA_ROBOTIC_SPECIES_CLASS" ]
