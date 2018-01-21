@@ -20,7 +20,15 @@ Species
         [[NO_STOCKPILE]]
 
         [[AVERAGE_POPULATION]]
-        [[AVERAGE_HAPPINESS]]
+        EffectsGroup
+            scope = Source
+            activation = Planet
+            accountinglabel = "EXOBOT_HAPPINESS_LABEL"
+            priority = [[HAPPINESS_PRODUCTIVITY_PRIORITY]]
+            effects = [
+                SetTargetHappiness value = [[CONTENT_HAPPINESS]]
+                SetHappiness value = [[CONTENT_HAPPINESS]]
+            ]
         [[AVERAGE_SUPPLY]]
         [[BAD_DEFENSE_TROOPS]]
         [[BAD_OFFENSE_TROOPS]]
