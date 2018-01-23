@@ -18,8 +18,11 @@ Tech
                     Poor
                 ]
             ]
+            accountinglabel = "GRO_SYMBIOTIC_BIO"
             priority = [[EARLY_PRIORITY]]
-            effects = SetTargetPopulation value = Value + 1 * Target.SizeAsDouble accountinglabel = "GRO_SYMBIOTIC_BIO"
+            effects = If condition = HasTag name = "VOLUMINOUS"
+                effects = SetTargetPopulation value = Value + 1 * (Target.SizeAsDouble / 2)
+                else = SetTargetPopulation value = Value + 1 * Target.SizeAsDouble
     ]
     graphic = "icons/tech/symbiosis_biology.png"
 

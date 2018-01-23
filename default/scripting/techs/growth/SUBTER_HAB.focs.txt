@@ -13,8 +13,11 @@ Tech
                 Species
                 OwnedBy empire = Source.Owner
             ]
+            accountinglabel = "GRO_SUBTER_HAB"
             priority = [[LATE_PRIORITY]]
-            effects = SetTargetPopulation value = Value + 1 * Target.SizeAsDouble accountinglabel = "GRO_SUBTER_HAB"
+            effects = If condition = HasTag name = "VOLUMINOUS"
+                effects = SetTargetPopulation value = Value + 1 * (Target.SizeAsDouble / 2)
+                else = SetTargetPopulation value = Value + 1 * Target.SizeAsDouble
     ]
     graphic = "icons/tech/subterranean_construction.png"
 

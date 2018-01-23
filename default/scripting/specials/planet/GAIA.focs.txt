@@ -48,10 +48,13 @@ Special
                 Object id = Source.PlanetID
                 Planet environment = Good
             ]
+            accountinglabel = "GAIA_LABEL"
             priority = [[LATE_PRIORITY]]
             effects = [
-                SetTargetPopulation value = Value + 3 * Target.SizeAsDouble accountinglabel = "GAIA_LABEL"
-                SetTargetHappiness value = Value + 5 accountinglabel = "GAIA_LABEL"
+                If condition = HasTag name = "VOLUMINOUS"
+                    effects = SetTargetPopulation value = Value + 3 * (Target.SizeAsDouble / 2)
+                    else = SetTargetPopulation value = Value + 3 * Target.SizeAsDouble
+                SetTargetHappiness value = Value + 5
             ]
 
         EffectsGroup

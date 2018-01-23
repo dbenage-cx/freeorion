@@ -20,16 +20,22 @@ Tech
                     Poor
                 ]
             ]
+            accountinglabel = "GRO_XENO_GENETICS"
             priority = [[EARLY_PRIORITY]]
-            effects = SetTargetPopulation value = Value + 2 * Target.SizeAsDouble accountinglabel = "GRO_XENO_GENETICS"
+            effects = If condition = HasTag name = "VOLUMINOUS"
+                effects = SetTargetPopulation value = Value + Target.SizeAsDouble
+                else = SetTargetPopulation value = Value + 2 * Target.SizeAsDouble
         EffectsGroup
             scope = And [
                 Planet
                 OwnedBy empire = Source.Owner
                 Planet environment = [ Hostile ]
             ]
+            accountinglabel = "GRO_XENO_GENETICS"
             priority = [[EARLY_PRIORITY]]
-            effects = SetTargetPopulation value = Value + 1 * Target.SizeAsDouble accountinglabel = "GRO_XENO_GENETICS"
+            effects = If condition = HasTag name = "VOLUMINOUS"
+                effects = SetTargetPopulation value = Value + 1 * (Target.SizeAsDouble / 2)
+                else = SetTargetPopulation value = Value + 1 * Target.SizeAsDouble
     ]
     graphic = "icons/tech/xenological_genetics.png"
 

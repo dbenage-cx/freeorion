@@ -83,8 +83,11 @@ ENVIRONMENT_MODIFIER
         EffectsGroup
             scope = Source
             activation = Planet environment = Good
+            accountinglabel = "GOOD_ENVIRONMENT_LABEL"
             priority = [[EARLY_PRIORITY]]
-            effects = SetTargetPopulation value = Value + 3 * Target.SizeAsDouble accountinglabel = "GOOD_ENVIRONMENT_LABEL"
+            effects = If condition = HasTag name = "VOLUMINOUS"
+                effects = SetTargetPopulation value = Value + 1.5 * Target.SizeAsDouble
+                else = SetTargetPopulation value = Value + 3 * Target.SizeAsDouble
 '''
 
 HOMEWORLD_BONUS_POPULATION
@@ -95,8 +98,11 @@ HOMEWORLD_BONUS_POPULATION
             ]
             activation = Planet
             stackinggroup = "HOMEWORLD_STACK"
+            accountinglabel = "HOMEWORLD_BONUS"
             priority = [[VERY_LATE_PRIORITY]]
-            effects = SetTargetPopulation value = Value + 2 * Target.SizeAsDouble accountinglabel = "HOMEWORLD_BONUS"
+            effects = If condition = HasTag name = "VOLUMINOUS"
+                effects = SetTargetPopulation value = Value + 2 * (Target.SizeAsDouble / 2)
+                else = SetTargetPopulation value = Value + 2 * Target.SizeAsDouble
 '''
 
 HOMEWORLD_GROWTH_FOCUS_BOOST
@@ -115,8 +121,11 @@ HOMEWORLD_GROWTH_FOCUS_BOOST
                 Homeworld
             ]
             stackinggroup = "HOMEWORLD_STACK"
+            accountinglabel = "HOMEWORLD_SUPPLY"
             priority = [[VERY_LATE_PRIORITY]]
-            effects = SetTargetPopulation value = Value + 1 * Target.SizeAsDouble accountinglabel = "HOMEWORLD_SUPPLY"
+            effects = If condition = HasTag name = "VOLUMINOUS"
+                effects = SetTargetPopulation value = Value + 1 * (Target.SizeAsDouble / 2)
+                else = SetTargetPopulation value = Value + 1 * Target.SizeAsDouble
 '''
 
 // This is dependent on current placement in population effects calc, just after Homeworld and Environment
@@ -130,7 +139,11 @@ SELF_SUSTAINING_BONUS
             ]
             accountinglabel = "SELF_SUSTAINING_LABEL"
             priority = [[VERY_LATE_PRIORITY]]
-            effects = SetTargetPopulation value = Value + 3 * Target.SizeAsDouble  // Gets the same bonus as three growth specials
+            effects = [
+                If condition = HasTag name = "VOLUMINOUS"
+                    effects = SetTargetPopulation value = Value + 3 * (Target.SizeAsDouble / 2)
+                    else = SetTargetPopulation value = Value + 3 * Target.SizeAsDouble  // Gets the same bonus as three growth specials
+            ]
 '''
 
 PHOTOTROPHIC_BONUS

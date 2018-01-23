@@ -14,8 +14,11 @@ Tech
                 OwnedBy empire = Source.Owner
                 //TargetPopulation low = 0
             ]
+            accountinglabel = "ORBITAL_HAB_LABEL"
             priority = [[LATE_PRIORITY]]
-            effects = SetTargetPopulation value = Value + 1 * Target.SizeAsDouble accountinglabel = "ORBITAL_HAB_LABEL"
+            effects = If condition = HasTag name = "VOLUMINOUS"
+                effects = SetTargetPopulation value = Value + 1 * (Target.SizeAsDouble / 2)
+                else = SetTargetPopulation value = Value + 1 * Target.SizeAsDouble
     ]
     graphic = "icons/tech/orbital_gardens.png"
 

@@ -20,7 +20,9 @@ Tech
             priority = [[LATE_PRIORITY]]
             effects = [
                 SetTargetConstruction value = Value + 10
-                SetTargetPopulation value = Value + 2 * Target.SizeAsDouble
+                If condition = HasTag name = "VOLUMINOUS"
+                    effects = SetTargetPopulation value = Value + 2 * (Target.SizeAsDouble / 2)
+                    else = SetTargetPopulation value = Value + 2 * Target.SizeAsDouble
             ]
     ]
     graphic = "icons/tech/n-dimensional_structures.png"

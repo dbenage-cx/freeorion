@@ -1,0 +1,24 @@
+VOLUMINOUS_SELF
+'''
+EffectsGroup
+    scope = source
+    activation = And [
+        Planet
+        (LocalCandidate.SizeAsDouble < 5)
+    ]
+    accountinglabel = "VOLUMINOUS_LABEL"
+    priority = [[EARLY_PRIORITY]]
+    effects = SetTargetPopulation value = Value - ((6 - Target.SizeAsDouble) ^ 2)
+
+EffectsGroup
+    scope = source
+    activation = And [
+        Planet
+        Not Planet type = GasGiant
+    ]
+    stackinggroup = "VOLUMINOUS_HAPPY_STACKING"
+    accountinglabel = "VOLUMINOUS_LABEL"
+    effects = SetTargetHappiness value = max(0, Value - ((6 - Target.SizeAsDouble) * 2))
+'''
+
+#include "/scripting/common/priorities.macros"

@@ -5514,6 +5514,12 @@ XENOPHOBIC_SPECIES_TEXT
 
 Xenophobic species start with [[tech CON_CONC_CAMP]].'''
 
+VOLUMINOUS_SPECIES_TITLE
+Voluminous
+
+VOLUMINOUS_SPECIES_TEXT
+'''Voluminous species have an enivornmental preference for larger surface areas.  As the surface area decreases, they suffer increased population and happiness penalties.'''
+
 FLEET_UPKEEP_TITLE
 Fleet Upkeep
 
@@ -14445,6 +14451,9 @@ Xenophobic Harassment: Trith
 
 XENOPHOBIC_LABEL_EAXAW_OTHER
 Xenophobic Harassment: Eaxaw
+
+VOLUMINOUS_LABEL
+Voluminous species
 
 ORGANIC_GROWTH
 Organic Growth
