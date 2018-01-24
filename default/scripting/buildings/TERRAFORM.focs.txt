@@ -19,6 +19,12 @@ BuildingType
     EnqueueLocation = And [
         Planet
         OwnedBy empire = Source.Owner
+        Not Planet type = [Asteroids GasGiant]
+        Not Planet environment = [Uninhabitable Good]
+        Not And [
+            Species name = "SP_EXOBOT"
+            Planet environment = Adequate
+        ]
         Not Contains Building name = "BLD_TERRAFORM_REVERT"
         Not Contains Building name = "BLD_GAIA_TRANS"
         Not HasSpecial name = "GAIA_SPECIAL"
