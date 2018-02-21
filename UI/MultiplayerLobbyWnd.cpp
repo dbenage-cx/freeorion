@@ -723,6 +723,8 @@ void MultiPlayerLobbyWnd::Render() {
 }
 
 void MultiPlayerLobbyWnd::KeyPress(GG::Key key, std::uint32_t key_code_point, GG::Flags<GG::ModKey> mod_keys) {
+    if (GG::GUI::GetGUI()->FocusWndAcceptsTypingInput())
+        return;
     if ((key == GG::GGK_RETURN || key == GG::GGK_KP_ENTER) &&
          GG::GUI::GetGUI()->FocusWnd() == m_chat_input_edit)
     {
