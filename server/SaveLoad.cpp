@@ -196,14 +196,16 @@ int SaveGame(const std::string& filename, const ServerSaveGameData& server_save_
                 InsertDevice serial_inserter(serial_str);
                 boost::iostreams::stream<InsertDevice> s_sink(serial_inserter);
 
-                // create archive with (preallocated) buffer...
-                freeorion_xml_oarchive xoa(s_sink);
-                // serialize main gamestate info
-                xoa << BOOST_SERIALIZATION_NVP(player_save_game_data);
-                xoa << BOOST_SERIALIZATION_NVP(empire_manager);
-                xoa << BOOST_SERIALIZATION_NVP(species_manager);
-                xoa << BOOST_SERIALIZATION_NVP(combat_log_manager);
-                Serialize(xoa, universe);
+                {
+                    // create archive with (preallocated) buffer...
+                    freeorion_xml_oarchive xoa(s_sink);
+                    // serialize main gamestate info
+                    xoa << BOOST_SERIALIZATION_NVP(player_save_game_data);
+                    xoa << BOOST_SERIALIZATION_NVP(empire_manager);
+                    xoa << BOOST_SERIALIZATION_NVP(species_manager);
+                    xoa << BOOST_SERIALIZATION_NVP(combat_log_manager);
+                    Serialize(xoa, universe);
+                }
                 s_sink.flush();
 
                 // wrap gamestate string in iostream::stream to extract serialized data
@@ -222,16 +224,18 @@ int SaveGame(const std::string& filename, const ServerSaveGameData& server_save_
                 boost::iostreams::copy(s_source, o);
                 c_sink.flush();
 
-                // write to save file: uncompressed header serialized data, with compressed main archive string at end...
-                freeorion_xml_oarchive xoa2(ofs);
-                // serialize uncompressed save header info
-                xoa2 << BOOST_SERIALIZATION_NVP(save_preview_data);
-                xoa2 << BOOST_SERIALIZATION_NVP(galaxy_setup_data);
-                xoa2 << BOOST_SERIALIZATION_NVP(server_save_game_data);
-                xoa2 << BOOST_SERIALIZATION_NVP(player_save_header_data);
-                xoa2 << BOOST_SERIALIZATION_NVP(empire_save_game_data);
-                // append compressed gamestate info
-                xoa2 << BOOST_SERIALIZATION_NVP(compressed_str);
+                {
+                    // write to save file: uncompressed header serialized data, with compressed main archive string at end...
+                    freeorion_xml_oarchive xoa2(ofs);
+                    // serialize uncompressed save header info
+                    xoa2 << BOOST_SERIALIZATION_NVP(save_preview_data);
+                    xoa2 << BOOST_SERIALIZATION_NVP(galaxy_setup_data);
+                    xoa2 << BOOST_SERIALIZATION_NVP(server_save_game_data);
+                    xoa2 << BOOST_SERIALIZATION_NVP(player_save_header_data);
+                    xoa2 << BOOST_SERIALIZATION_NVP(empire_save_game_data);
+                    // append compressed gamestate info
+                    xoa2 << BOOST_SERIALIZATION_NVP(compressed_str);
+                }
 
                 save_completed_as_xml = true;
             } catch (...) {
@@ -243,18 +247,20 @@ int SaveGame(const std::string& filename, const ServerSaveGameData& server_save_
             DebugLogger() << "Creating binary oarchive";
             save_preview_data.SetBinary(true);
 
-            freeorion_bin_oarchive boa(ofs);
-            boa << BOOST_SERIALIZATION_NVP(save_preview_data);
-            boa << BOOST_SERIALIZATION_NVP(galaxy_setup_data);
-            boa << BOOST_SERIALIZATION_NVP(server_save_game_data);
-            boa << BOOST_SERIALIZATION_NVP(player_save_header_data);
-            boa << BOOST_SERIALIZATION_NVP(empire_save_game_data);
+            {
+                freeorion_bin_oarchive boa(ofs);
+                boa << BOOST_SERIALIZATION_NVP(save_preview_data);
+                boa << BOOST_SERIALIZATION_NVP(galaxy_setup_data);
+                boa << BOOST_SERIALIZATION_NVP(server_save_game_data);
+                boa << BOOST_SERIALIZATION_NVP(player_save_header_data);
+                boa << BOOST_SERIALIZATION_NVP(empire_save_game_data);
 
-            boa << BOOST_SERIALIZATION_NVP(player_save_game_data);
-            boa << BOOST_SERIALIZATION_NVP(empire_manager);
-            boa << BOOST_SERIALIZATION_NVP(species_manager);
-            boa << BOOST_SERIALIZATION_NVP(combat_log_manager);
-            Serialize(boa, universe);
+                boa << BOOST_SERIALIZATION_NVP(player_save_game_data);
+                boa << BOOST_SERIALIZATION_NVP(empire_manager);
+                boa << BOOST_SERIALIZATION_NVP(species_manager);
+                boa << BOOST_SERIALIZATION_NVP(combat_log_manager);
+                Serialize(boa, universe);
+            }
             DebugLogger() << "Done serializing";
         }
 

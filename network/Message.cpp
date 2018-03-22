@@ -615,17 +615,22 @@ Message DispatchSavePreviewsMessage(int receiver, const PreviewInformation& prev
 
 Message RequestCombatLogsMessage(int sender, const std::vector<int>& ids) {
     std::ostringstream os;
-    freeorion_xml_oarchive oa(os);
-    oa << BOOST_SERIALIZATION_NVP(ids);
+    {
+        freeorion_xml_oarchive oa(os);
+        oa << BOOST_SERIALIZATION_NVP(ids);
+    }
     return Message(Message::REQUEST_COMBAT_LOGS, sender, Networking::INVALID_PLAYER_ID, os.str());
 }
 
 Message DispatchCombatLogsMessage(int receiver, const std::vector<std::pair<int, const CombatLog>>& logs) {
     std::ostringstream os;
-    freeorion_xml_oarchive oa(os);
-    oa << BOOST_SERIALIZATION_NVP(logs);
+    {
+        freeorion_xml_oarchive oa(os);
+        oa << BOOST_SERIALIZATION_NVP(logs);
+    }
     return Message(Message::DISPATCH_COMBAT_LOGS, Networking::INVALID_PLAYER_ID, receiver, os.str(), true);
 }
+
 
 ////////////////////////////////////////////////
 // Multiplayer Lobby Message named ctors
