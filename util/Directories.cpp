@@ -347,7 +347,7 @@ void InitBinDir(const std::string& argv0) {
                 problem = true;
         }
 
-    } catch (fs::filesystem_error err) {
+    } catch (const fs::filesystem_error& err) {
         problem = true;
     }
 
@@ -416,7 +416,7 @@ void InitBinDir(const std::string& argv0) {
     try {
         fs::path binary_file = fs::system_complete(FilenameToPath(argv0));
         bin_dir = binary_file.branch_path();
-    } catch (fs::filesystem_error err) {
+    } catch (const fs::filesystem_error& err) {
         bin_dir = fs::initial_path();
     }
 }
@@ -652,7 +652,7 @@ bool IsExistingFile(const fs::path& path) {
     try {
         auto stat = fs::status(path);
         return fs::exists(stat) && fs::is_regular_file(stat);
-    } catch(boost::filesystem::filesystem_error& ec) {
+    } catch (const boost::filesystem::filesystem_error& ec) {
         ErrorLogger() << "Filesystem error during stat of " << PathToString(path) << " : " << ec.what();
     }
 

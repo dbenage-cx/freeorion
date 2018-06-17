@@ -157,7 +157,7 @@ std::vector<std::string> PythonBase::ErrorReport() {
 
         list py_err_list;
         try { py_err_list = extract<list>(f()); }
-        catch (error_already_set err) {
+        catch (const error_already_set& err) {
             HandleErrorAlreadySet();
             return err_list;
         }

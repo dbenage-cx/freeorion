@@ -1351,7 +1351,7 @@ void ServerApp::GenerateUniverse(std::map<int, PlayerSetupData>& player_setup_da
         m_python_server.SetCurrentDir(GetPythonUniverseGeneratorDir());
         // Call the main Python universe generator function
         success = m_python_server.CreateUniverse(player_setup_data);
-    } catch (boost::python::error_already_set err) {
+    } catch (const boost::python::error_already_set& err) {
         success = false;
         m_python_server.HandleErrorAlreadySet();
         if (!m_python_server.IsPythonRunning()) {
@@ -1408,7 +1408,7 @@ void ServerApp::ExecuteScriptedTurnEvents() {
         m_python_server.SetCurrentDir(GetPythonTurnEventsDir());
         // Call the main Python turn events function
         success = m_python_server.ExecuteTurnEvents();
-    } catch (boost::python::error_already_set err) {
+    } catch (const boost::python::error_already_set& err) {
         success = false;
         m_python_server.HandleErrorAlreadySet();
         if (!m_python_server.IsPythonRunning()) {
@@ -1506,7 +1506,7 @@ bool ServerApp::IsAuthRequiredOrFillRoles(const std::string& player_name, Networ
         m_python_server.SetCurrentDir(GetPythonAuthDir());
         // Call the main Python turn events function
         success = m_python_server.IsRequireAuthOrReturnRoles(player_name, result, roles);
-    } catch (boost::python::error_already_set err) {
+    } catch (const boost::python::error_already_set& err) {
         success = false;
         m_python_server.HandleErrorAlreadySet();
         if (!m_python_server.IsPythonRunning()) {
@@ -1535,7 +1535,7 @@ bool ServerApp::IsAuthSuccessAndFillRoles(const std::string& player_name, const 
         m_python_server.SetCurrentDir(GetPythonAuthDir());
         // Call the main Python turn events function
         success = m_python_server.IsSuccessAuthAndReturnRoles(player_name, auth, result, roles);
-    } catch (boost::python::error_already_set err) {
+    } catch (const boost::python::error_already_set& err) {
         success = false;
         m_python_server.HandleErrorAlreadySet();
         if (!m_python_server.IsPythonRunning()) {
