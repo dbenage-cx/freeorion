@@ -100,7 +100,7 @@ template <class vtype>
 void GLClientAndServerBufferBase<vtype>::createServerBuffer()
 {
     glGenBuffers(1, &b_name);
-    if (!b_name)
+    if (!b_name || b_data.empty())
         return;
     glBindBuffer(GL_ARRAY_BUFFER, b_name);
     glBufferData(GL_ARRAY_BUFFER,
@@ -135,7 +135,7 @@ void GLRGBAColorBuffer::activate() const
         glBindBuffer(GL_ARRAY_BUFFER, b_name);
         glColorPointer(4, GL_UNSIGNED_BYTE, 0, nullptr);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-    } else {
+    } else if (!b_data.empty()) {
         glColorPointer(4, GL_UNSIGNED_BYTE, 0, &b_data[0]);
     }
 }
@@ -170,7 +170,7 @@ void GL2DVertexBuffer::activate() const
         glBindBuffer(GL_ARRAY_BUFFER, b_name);
         glVertexPointer(2, GL_FLOAT, 0, nullptr);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-    } else {
+    } else if (!b_data.empty()) {
         glVertexPointer(2, GL_FLOAT, 0, &b_data[0]);
     }
 }
@@ -189,7 +189,7 @@ void GLTexCoordBuffer::activate() const
         glBindBuffer(GL_ARRAY_BUFFER, b_name);
         glTexCoordPointer(2, GL_FLOAT, 0, nullptr);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-    } else {
+    } else if (!b_data.empty()) {
         glTexCoordPointer(2, GL_FLOAT, 0, &b_data[0]);
     }
 }
@@ -211,7 +211,7 @@ void GL3DVertexBuffer::activate() const
         glBindBuffer(GL_ARRAY_BUFFER, b_name);
         glVertexPointer(3, GL_FLOAT, 0, nullptr);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-    } else {
+    } else if (!b_data.empty()) {
         glVertexPointer(3, GL_FLOAT, 0, &b_data[0]);
     }
 }
@@ -230,7 +230,7 @@ void GLNormalBuffer::activate() const
         glBindBuffer(GL_ARRAY_BUFFER, b_name);
         glNormalPointer(GL_FLOAT, 0, nullptr);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-    } else {
+    } else if (!b_data.empty()) {
         glNormalPointer(GL_FLOAT, 0, &b_data[0]);
     }
 }
