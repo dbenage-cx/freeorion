@@ -468,7 +468,7 @@ if (m_ref_type == EFFECT_TARGET_VALUE_REFERENCE) {                     \
 template <>
 PlanetSize Variable<PlanetSize>::Eval(const ScriptingContext& context) const
 {
-    const std::string& property_name = m_property_name.back();
+    const std::string& property_name = m_property_name.empty() ? "" : m_property_name.back();
 
     IF_CURRENT_VALUE(PlanetSize)
 
@@ -500,7 +500,7 @@ PlanetSize Variable<PlanetSize>::Eval(const ScriptingContext& context) const
 template <>
 PlanetType Variable<PlanetType>::Eval(const ScriptingContext& context) const
 {
-    const std::string& property_name = m_property_name.back();
+    const std::string& property_name = m_property_name.empty() ? "" : m_property_name.back();
 
     IF_CURRENT_VALUE(PlanetType)
 
@@ -538,7 +538,7 @@ PlanetType Variable<PlanetType>::Eval(const ScriptingContext& context) const
 template <>
 PlanetEnvironment Variable<PlanetEnvironment>::Eval(const ScriptingContext& context) const
 {
-    const std::string& property_name = m_property_name.back();
+    const std::string& property_name = m_property_name.empty() ? "" : m_property_name.back();
 
     IF_CURRENT_VALUE(PlanetEnvironment)
 
@@ -565,7 +565,7 @@ PlanetEnvironment Variable<PlanetEnvironment>::Eval(const ScriptingContext& cont
 template <>
 UniverseObjectType Variable<UniverseObjectType>::Eval(const ScriptingContext& context) const
 {
-    const std::string& property_name = m_property_name.back();
+    const std::string& property_name = m_property_name.empty() ? "" : m_property_name.back();
 
     IF_CURRENT_VALUE(UniverseObjectType)
 
@@ -597,7 +597,7 @@ UniverseObjectType Variable<UniverseObjectType>::Eval(const ScriptingContext& co
 template <>
 StarType Variable<StarType>::Eval(const ScriptingContext& context) const
 {
-    const std::string& property_name = m_property_name.back();
+    const std::string& property_name = m_property_name.empty() ? "" : m_property_name.back();
 
     IF_CURRENT_VALUE(StarType)
 
@@ -629,7 +629,7 @@ StarType Variable<StarType>::Eval(const ScriptingContext& context) const
 template <>
 double Variable<double>::Eval(const ScriptingContext& context) const
 {
-    const std::string& property_name = m_property_name.back();
+    const std::string& property_name = m_property_name.empty() ? "" : m_property_name.back();
 
     IF_CURRENT_VALUE(float)
 
@@ -733,7 +733,7 @@ double Variable<double>::Eval(const ScriptingContext& context) const
 template <>
 int Variable<int>::Eval(const ScriptingContext& context) const
 {
-    const std::string& property_name = m_property_name.back();
+    const std::string& property_name = m_property_name.empty() ? "" : m_property_name.back();
 
     IF_CURRENT_VALUE(int)
 
@@ -925,7 +925,7 @@ int Variable<int>::Eval(const ScriptingContext& context) const
 template <>
 std::vector<std::string> Variable<std::vector<std::string>>::Eval(const ScriptingContext& context) const
 {
-    const std::string& property_name = m_property_name.back();
+    const std::string& property_name = m_property_name.empty() ? "" : m_property_name.back();
 
     IF_CURRENT_VALUE(std::vector<std::string>)
 
@@ -990,7 +990,7 @@ std::vector<std::string> Variable<std::vector<std::string>>::Eval(const Scriptin
 template <>
 std::string Variable<std::string>::Eval(const ScriptingContext& context) const
 {
-    const std::string& property_name = m_property_name.back();
+    const std::string& property_name = m_property_name.empty() ? "" : m_property_name.back();
 
     IF_CURRENT_VALUE(std::string)
 
@@ -1472,7 +1472,7 @@ namespace {
 template <>
 int ComplexVariable<int>::Eval(const ScriptingContext& context) const
 {
-    const std::string& variable_name = m_property_name.back();
+    const std::string& variable_name = m_property_name.empty() ? "" : m_property_name.back();
 
     // empire properties indexed by strings
     if (variable_name == "BuildingTypesOwned" ||
@@ -1756,7 +1756,7 @@ int ComplexVariable<int>::Eval(const ScriptingContext& context) const
 template <>
 double ComplexVariable<double>::Eval(const ScriptingContext& context) const
 {
-    const std::string& variable_name = m_property_name.back();
+    const std::string& variable_name = m_property_name.empty() ? "" : m_property_name.back();
 
     // empire properties indexed by integers
     if (variable_name == "PropagatedSystemSupplyRange" ||
@@ -1978,7 +1978,7 @@ namespace {
 template <>
 std::string ComplexVariable<std::string>::Eval(const ScriptingContext& context) const
 {
-    const std::string& variable_name = m_property_name.back();
+    const std::string& variable_name = m_property_name.empty() ? "" : m_property_name.back();
 
     // unindexed empire properties
     if (variable_name == "LowestCostEnqueuedTech") {
