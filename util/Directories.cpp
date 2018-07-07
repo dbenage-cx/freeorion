@@ -499,10 +499,21 @@ fs::path RelativePath(const fs::path& from, const fs::path& to) {
     return retval;
 }
 
+fs::path ConvertPathSeparators(const fs::path& path) {
+    auto source = path.native();
+    decltype(source) target;
+#if defined(FREEORION_WIN32)
+      std::replace_copy(source.begin(), source.end(), std::back_inserter(target), L'\\', L'/');
+#else
+      std::replace_copy(source.begin(), source.end(), std::back_inserter(target), '\\', '/');
+#endif
+      return fs::path(target);
+}
+
 #if defined(FREEORION_WIN32)
 
 std::string PathToString(const fs::path& path) {
-    fs::path::string_type native_string = path.native();
+    fs::path::string_type native_string = ConvertPathSeparators(path).native();
     std::string retval;
     utf8::utf16to8(native_string.begin(), native_string.end(), std::back_inserter(retval));
     return retval;
@@ -512,16 +523,16 @@ fs::path FilenameToPath(const std::string& path_str) {
     // convert UTF-8 directory string to UTF-16
     boost::filesystem::path::string_type directory_native;
     utf8::utf8to16(path_str.begin(), path_str.end(), std::back_inserter(directory_native));
-    return fs::path(directory_native);
+    return ConvertPathSeparators(directory_native);
 }
 
 #else // defined(FREEORION_WIN32)
 
 std::string PathToString(const fs::path& path)
-{ return path.string(); }
+{ return ConvertPathSeparators(path).string(); }
 
 fs::path FilenameToPath(const std::string& path_str)
-{ return fs::path(path_str); }
+{ return ConvertPathSeparators(path_str); }
 
 #endif // defined(FREEORION_WIN32)
 

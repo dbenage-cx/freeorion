@@ -39,6 +39,9 @@ FO_COMMON_API const boost::filesystem::path GetUserConfigDir();
   * <li>This directory can be considered writable!</ul> */
 FO_COMMON_API const boost::filesystem::path GetUserDataDir();
 
+/** Replaces backslashes with slashes */
+FO_COMMON_API boost::filesystem::path ConvertPathSeparators(const boost::filesystem::path& path);
+
 /** Converts UTF-8 string into a path, doing any required wide-character
   * conversions as determined by the operating system / filesystem. */
 FO_COMMON_API boost::filesystem::path FilenameToPath(const std::string& path_str);
